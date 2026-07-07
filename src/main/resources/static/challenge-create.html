@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>챌린지 등록 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>챌린지 등록</h1>
+  <div class="card">
+    <form id="create-form">
+      <label>카테고리</label>
+      <select name="category" id="category"></select>
+      <label>종목 (카테고리의 닫힌 목록)</label>
+      <select name="exercise" id="exercise"></select>
+      <label>팀 정원 (한 팀 인원)</label>
+      <input name="teamCapacity" type="number" min="1" value="2" required>
+      <label>팀 수</label>
+      <input name="teamCount" type="number" min="1" value="2" required>
+      <label>상금 받을 팀 수 (팀 수보다 작아야 함)</label>
+      <input name="prizeTeamCount" type="number" min="1" value="1" required>
+      <label>참가 예치금 (원)</label>
+      <input name="depositAmount" type="number" min="1" value="30000" required>
+      <label>모집 시작</label>
+      <input name="recruitStart" type="datetime-local" required>
+      <label>모집 종료</label>
+      <input name="recruitEnd" type="datetime-local" required>
+      <label>수행 시작</label>
+      <input name="performStart" type="datetime-local" required>
+      <label>수행 마감</label>
+      <input name="performEnd" type="datetime-local" required>
+      <label>확인 윈도우 길이</label>
+      <select name="confirmWindowLength">
+        <option value="PT1H">1시간</option>
+        <option value="P1D" selected>1일</option>
+        <option value="P2D">2일</option>
+      </select>
+      <label>하루 인증 횟수 상한</label>
+      <input name="dailyCap" type="number" min="1" value="2" required>
+      <label>인증 주기 방식 (팀 볼륨 집계용)</label>
+      <select name="cycleMode">
+        <option value="주 며칠">주 며칠</option>
+        <option value="며칠에 한 번">며칠에 한 번</option>
+      </select>
+      <label>인증 주기 간격</label>
+      <input name="cycleInterval" type="number" min="1" value="3" required>
+      <button type="submit">등록하기</button>
+    </form>
+    <p class="msg" id="msg"></p>
+  </div>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 카테고리·종목 닫힌 목록 — 서버 application.yaml의 app.exercise-catalog와 일치해야 한다
+const CATALOG = {
+    '가슴': ['벤치프레스', '인클라인 벤치프레스', '체스트프레스'],
+    '등': ['데드리프트', '바벨로우', '랫풀다운'],
+    '어깨': ['오버헤드프레스', '시티드 숄더프레스'],
+    '팔': ['바벨컬', '라잉 트라이셉스 익스텐션'],
+    '하체': ['스쿼트', '레그프레스']
+};
+
+const catSel = document.getElementById('category');
+const exSel = document.getElementById('exercise');
+catSel.innerHTML = Object.keys(CATALOG).map(c => `<option>${c}</option>`).join('');
+function fillExercises() {
+    exSel.innerHTML = CATALOG[catSel.value].map(x => `<option>${x}</option>`).join('');
+}
+catSel.addEventListener('change', fillExercises);
+fillExercises();
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+
+    document.getElementById('create-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        try {
+            const res = await postJson('api/challenges', {
+                category: f.category.value,
+                exercise: f.exercise.value,
+                teamCapacity: Number(f.teamCapacity.value),
+                teamCount: Number(f.teamCount.value),
+                prizeTeamCount: Number(f.prizeTeamCount.value),
+                depositAmount: Number(f.depositAmount.value),
+                recruitPeriod: { start: f.recruitStart.value, end: f.recruitEnd.value },
+                performPeriod: { start: f.performStart.value, end: f.performEnd.value },
+                confirmWindowLength: f.confirmWindowLength.value,
+                dailyCap: Number(f.dailyCap.value),
+                cycleMode: f.cycleMode.value,
+                cycleInterval: Number(f.cycleInterval.value)
+            });
+            alert('등록 완료: ' + res.challengeId + ' (목표 인원 ' + res.targetParticipants + '명)');
+            location.href = 'challenge-detail.html?id=' + res.challengeId;
+        } catch (err) {
+            showMsg(document.getElementById('msg'), err.message, false);
+        }
+    });
+})();
+</script>
+</body>
+</html>

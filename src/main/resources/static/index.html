@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>챌린지 목록 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>챌린지 목록</h1>
+  <div class="card">
+    <label>상태 필터</label>
+    <select id="status-filter">
+      <option value="">전체</option>
+      <option value="모집">모집</option>
+      <option value="시작">시작</option>
+      <option value="종료">종료</option>
+      <option value="무산">무산</option>
+    </select>
+  </div>
+  <table>
+    <thead>
+      <tr><th>종목</th><th>상태</th><th>인원</th><th>모집 기간</th><th>수행 기간</th><th></th></tr>
+    </thead>
+    <tbody id="rows"><tr><td colspan="6" class="muted">불러오는 중...</td></tr></tbody>
+  </table>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 챌린지 목록 (6.5.1) — 공개 조회라 비로그인도 볼 수 있다
+function period(p) { return p.start.replace('T', ' ') + ' ~ ' + p.end.replace('T', ' '); }
+
+async function load() {
+    const status = document.getElementById('status-filter').value;
+    const data = await api('api/challenges' + (status ? '?status=' + encodeURIComponent(status) : ''));
+    const rows = document.getElementById('rows');
+    if (data.challenges.length === 0) {
+        rows.innerHTML = '<tr><td colspan="6" class="muted">챌린지가 없습니다.</td></tr>';
+        return;
+    }
+    rows.innerHTML = data.challenges.map(c => `
+        <tr>
+          <td>${c.exercise} <span class="muted">(${c.category})</span></td>
+          <td><span class="badge ${c.status}">${c.status}</span></td>
+          <td>${c.currentParticipants} / ${c.targetParticipants}</td>
+          <td class="muted">${period(c.recruitPeriod)}</td>
+          <td class="muted">${period(c.performPeriod)}</td>
+          <td><a href="challenge-detail.html?id=${c.challengeId}">상세</a></td>
+        </tr>`).join('');
+}
+
+(async () => {
+    await renderNav(false);
+    document.getElementById('status-filter').addEventListener('change', load);
+    await load();
+})();
+</script>
+</body>
+</html>

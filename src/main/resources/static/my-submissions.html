@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>내 제출 현황 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>내 제출 현황</h1>
+  <div class="card">
+    <label>수행 날짜 필터 (비우면 전체)</label>
+    <input type="date" id="date-filter">
+    <button class="secondary" id="btn-filter" style="margin-left:8px">조회</button>
+  </div>
+  <div id="groups"><div class="card muted">불러오는 중...</div></div>
+  <p><a href="#" id="back">← 챌린지 상세로</a> | <a href="#" id="lnk-submit">인증 제출하기</a></p>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 내 제출 현황 (6.7): 일반 인증만, 수행 날짜 내림차순 묶음. 기준 측정 행은 포함되지 않는다.
+const id = qs('id');
+document.getElementById('back').href = 'challenge-detail.html?id=' + id;
+document.getElementById('lnk-submit').href = 'submit.html?id=' + id;
+
+async function load() {
+    const date = document.getElementById('date-filter').value;
+    const data = await api('api/challenges/' + id + '/submissions/me' + (date ? '?date=' + date : ''));
+    const el = document.getElementById('groups');
+    if (data.submissionsByDate.length === 0) {
+        el.innerHTML = '<div class="card muted">제출 내역이 없습니다.</div>';
+        return;
+    }
+    el.innerHTML = data.submissionsByDate.map(g => `
+        <h2>${g.date}</h2>
+        <table>
+          <thead><tr><th>무게</th><th>횟수</th><th>볼륨</th><th>상태</th><th>등록 시점</th></tr></thead>
+          <tbody>
+            ${g.submissions.map(s => `
+              <tr>
+                <td>${s.weight}kg</td><td>${s.reps}회</td><td>${s.volume}</td>
+                <td><span class="badge">${s.status}</span></td>
+                <td class="muted">${s.registeredAt.replace('T', ' ')}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`).join('');
+}
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+    document.getElementById('btn-filter').addEventListener('click', () => load().catch(e => alert(e.message)));
+    try { await load(); }
+    catch (err) { document.getElementById('groups').innerHTML = '<div class="card msg error">' + err.message + '</div>'; }
+})();
+</script>
+</body>
+</html>

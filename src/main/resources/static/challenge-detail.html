@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>챌린지 상세 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1 id="title">챌린지 상세</h1>
+  <div class="card" id="detail">불러오는 중...</div>
+
+  <div class="card actions" id="links" style="display:none">
+    <a href="#" id="lnk-submit">인증 제출</a>
+    <a href="#" id="lnk-confirm">팀원 확인</a>
+    <a href="#" id="lnk-rankings">순위·현황</a>
+    <a href="#" id="lnk-my">내 제출 현황</a>
+  </div>
+
+  <!-- 모집 중일 때만 표시: 참가 신청 (F002) -->
+  <div class="card" id="apply-card" style="display:none">
+    <h2>참가 신청</h2>
+    <p class="muted">개인 목표를 함께 입력해야 신청이 성립한다. 강도는 직접 입력하지 않고,
+       시스템이 최근 30일 기록(없으면 기준 측정)으로 기준값을 확정한 뒤 계수를 곱해 산출한다.</p>
+    <form id="apply-form">
+      <label>강도 계수 (1 이상, 미입력 시 1)</label>
+      <input name="coefficient" type="number" step="0.1" min="1" value="1.0">
+      <label>목표 빈도 방식</label>
+      <select name="goalCycleMode">
+        <option value="주 며칠">주 며칠</option>
+        <option value="며칠에 한 번">며칠에 한 번</option>
+      </select>
+      <label>목표 빈도 간격</label>
+      <input name="goalCycleInterval" type="number" min="1" value="3" required>
+      <button type="submit">신청하기</button>
+    </form>
+    <p class="msg" id="apply-msg"></p>
+  </div>
+
+  <!-- 신청 응답이 202(기준 측정 필요)일 때만 표시 (F003) -->
+  <div class="card" id="baseline-card" style="display:none">
+    <h2>기준 측정 인증</h2>
+    <p class="muted">최근 30일 안에 이 종목 기록이 없어 기준 측정이 필요하다.
+       1회 수행의 무게·횟수와 인증샷을 올리면 그 볼륨으로 기준값이 확정되고 예치금이 차감되며 신청이 완료된다.</p>
+    <form id="baseline-form">
+      <label>무게 (kg)</label>
+      <input name="weight" type="number" step="0.5" min="1" required>
+      <label>횟수</label>
+      <input name="reps" type="number" min="1" required>
+      <label>인증샷</label>
+      <input name="photo" type="file" accept="image/*" required>
+      <button type="submit">기준 측정 제출</button>
+    </form>
+    <p class="msg" id="baseline-msg"></p>
+  </div>
+</main>
+<script src="js/api.js"></script>
+<script>
+const id = qs('id');
+
+function row(k, v) { return `<tr><th style="width:180px">${k}</th><td>${v}</td></tr>`; }
+function period(p) { return p.start.replace('T', ' ') + ' ~ ' + p.end.replace('T', ' '); }
+
+async function loadDetail() {
+    const c = await api('api/challenges/' + id);
+    document.getElementById('title').textContent = c.exercise + ' 챌린지 (' + c.category + ')';
+    document.getElementById('detail').innerHTML = `<table>
+        ${row('상태', `<span class="badge ${c.status}">${c.status}</span>`)}
+        ${row('참가 인원', c.currentParticipants + ' / ' + c.targetParticipants + ' (팀 ' + c.teamCount + '개 × ' + c.teamCapacity + '명)')}
+        ${row('상금 받을 팀 수', c.prizeTeamCount)}
+        ${row('참가 예치금', c.depositAmount.toLocaleString() + '원 (신청 완료 시 차감)')}
+        ${row('기본 상금풀', c.basePrizePool.toLocaleString() + '원')}
+        ${row('모집 기간', period(c.recruitPeriod))}
+        ${row('수행 기간', period(c.performPeriod))}
+        ${row('확인 윈도우', c.confirmWindowLength)}
+        ${row('인증 빈도', '하루 ' + c.dailyCap + '회 이내, ' + c.cycleMode + ' ' + c.cycleInterval)}
+    </table>`;
+    return c;
+}
+
+(async () => {
+    const user = await renderNav(false);
+    const c = await loadDetail();
+
+    // 참가자용 이동 링크
+    document.getElementById('links').style.display = '';
+    document.getElementById('lnk-submit').href = 'submit.html?id=' + id;
+    document.getElementById('lnk-confirm').href = 'confirm.html?id=' + id;
+    document.getElementById('lnk-rankings').href = 'rankings.html?id=' + id;
+    document.getElementById('lnk-my').href = 'my-submissions.html?id=' + id;
+
+    // 모집 상태 + 로그인 상태일 때만 신청 폼 노출
+    if (c.status === '모집' && user) {
+        document.getElementById('apply-card').style.display = '';
+    }
+
+    document.getElementById('apply-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const body = {
+            intensityCoefficient: Number(f.coefficient.value || 1),
+            goalCycleMode: f.goalCycleMode.value,
+            goalCycleInterval: Number(f.goalCycleInterval.value)
+        };
+        try {
+            const res = await postJson('api/challenges/' + id + '/participations', body);
+            if (res && res.participationId) {
+                // 201: 최근 30일 기록이 있어 즉시 완료
+                showMsg(document.getElementById('apply-msg'),
+                    `신청 완료! 편성 실력 ${res.formationSkill}, 강도 하한 ${res.intensityFloor}, 예치 차감 ${res.depositCharged.toLocaleString()}원`
+                    + (res.teamAssigned ? ' — 인원이 차서 팀 편성까지 완료' : ''), true);
+                await loadDetail();
+            } else {
+                // 202: 기준 측정 필요 — 측정 폼을 연다
+                showMsg(document.getElementById('apply-msg'), '기준 측정이 필요합니다. 아래에서 측정 인증을 올려주세요.', true);
+                document.getElementById('baseline-card').style.display = '';
+            }
+        } catch (err) {
+            showMsg(document.getElementById('apply-msg'), err.message, false);
+        }
+    });
+
+    document.getElementById('baseline-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        try {
+            const res = await postMultipart(
+                'api/challenges/' + id + '/participations/baseline-measurement',
+                { weight: Number(f.weight.value), reps: Number(f.reps.value) },
+                f.photo.files[0]);
+            showMsg(document.getElementById('baseline-msg'),
+                `신청 완료! 편성 실력 ${res.formationSkill}, 예치 차감 ${res.depositCharged.toLocaleString()}원`
+                + (res.teamAssigned ? ' — 인원이 차서 팀 편성까지 완료' : ''), true);
+            document.getElementById('baseline-card').style.display = 'none';
+            await loadDetail();
+        } catch (err) {
+            showMsg(document.getElementById('baseline-msg'), err.message, false);
+        }
+    });
+})();
+</script>
+</body>
+</html>

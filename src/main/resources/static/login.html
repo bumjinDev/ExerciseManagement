@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>로그인 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>로그인</h1>
+  <div class="card">
+    <form id="login-form">
+      <label>아이디</label>
+      <input name="userid" required>
+      <label>비밀번호</label>
+      <input name="password" type="password" required>
+      <button type="submit">로그인</button>
+    </form>
+    <p class="msg" id="msg"></p>
+    <p class="muted">계정이 없으면 <a href="join.html">회원가입</a></p>
+  </div>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 로그인: POST /login → 성공 시 JWT 쿠키가 발급되고 loginSuccess로 리다이렉트(최종 200)
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    try {
+        await postJson('login', { userid: f.userid.value, password: f.password.value });
+        location.href = 'index.html';
+    } catch (err) {
+        showMsg(document.getElementById('msg'), err.message, false);
+    }
+});
+</script>
+</body>
+</html>

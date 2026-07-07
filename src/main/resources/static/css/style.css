@@ -1,0 +1,222 @@
+/* ============================================================
+   팀 대항 등수형 챌린지 UI 스타일
+   HTML 구조(클래스)는 그대로 두고 이 파일만으로 전 화면의 룩을 제어한다.
+   ============================================================ */
+
+:root {
+    --primary: #4f46e5;        /* 인디고 */
+    --primary-dark: #4338ca;
+    --primary-light: #eef2ff;
+    --accent: #10b981;         /* 에메랄드 */
+    --danger: #ef4444;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --bg: #f1f5f9;
+    --card-shadow: 0 1px 3px rgba(15, 23, 42, .06), 0 4px 16px rgba(15, 23, 42, .06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Pretendard', -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    margin: 0;
+    background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ---------- 상단 내비게이션 ---------- */
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(90deg, #312e81 0%, #4f46e5 60%, #6d28d9 100%);
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 12px rgba(49, 46, 129, .35);
+}
+nav a {
+    color: #e0e7ff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 2px;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+}
+nav a:hover { color: #fff; border-bottom-color: #a5b4fc; }
+nav .spacer { flex: 1; }
+nav .user {
+    font-size: 13px;
+    color: #c7d2fe;
+    background: rgba(255, 255, 255, .12);
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+/* ---------- 레이아웃 ---------- */
+main { max-width: 880px; margin: 32px auto; padding: 0 20px 60px; }
+
+h1 { font-size: 24px; letter-spacing: -.5px; margin: 0 0 20px; }
+h1::after {
+    content: "";
+    display: block;
+    width: 48px; height: 4px;
+    margin-top: 10px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--primary), #a78bfa);
+}
+h2 { font-size: 16px; margin: 30px 0 12px; color: #334155; }
+
+/* ---------- 카드 ---------- */
+.card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow .2s;
+}
+.card:hover { box-shadow: 0 2px 6px rgba(15, 23, 42, .08), 0 8px 24px rgba(15, 23, 42, .08); }
+
+/* ---------- 테이블 ---------- */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 18px;
+}
+th, td { padding: 12px 14px; font-size: 14px; text-align: left; }
+th {
+    background: #f8fafc;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    border-bottom: 1px solid var(--border);
+}
+td { border-bottom: 1px solid #f1f5f9; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr { transition: background .12s; }
+tbody tr:hover { background: #f8fafc; }
+tr.highlight, tr.highlight:hover { background: var(--primary-light); }
+tr.prize td { font-weight: 700; color: var(--primary-dark); }
+
+/* ---------- 폼 ---------- */
+form label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+input, select {
+    width: 100%;
+    max-width: 380px;
+    padding: 10px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+}
+input[readonly] { background: #f1f5f9; color: var(--text-muted); }
+input[type="file"] { border-style: dashed; padding: 14px 12px; cursor: pointer; }
+
+/* ---------- 버튼 ---------- */
+button {
+    background: linear-gradient(135deg, var(--primary), #6d28d9);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, .3);
+    transition: transform .12s, box-shadow .12s, filter .12s;
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79, 70, 229, .4); filter: brightness(1.05); }
+button:active { transform: translateY(0); }
+button.secondary {
+    background: #fff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: none;
+}
+button.secondary:hover { background: #f8fafc; box-shadow: none; }
+button.danger {
+    background: linear-gradient(135deg, var(--danger), #dc2626);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, .3);
+    margin-left: 8px;
+}
+button.danger:hover { box-shadow: 0 4px 14px rgba(239, 68, 68, .4); }
+
+/* ---------- 메시지·배지 ---------- */
+.msg { margin-top: 14px; font-size: 14px; font-weight: 600; }
+.msg.error { color: var(--danger); }
+.msg.ok { color: #059669; }
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #475569;
+}
+.badge.모집 { background: #dbeafe; color: #1d4ed8; }
+.badge.시작 { background: #d1fae5; color: #047857; }
+.badge.종료 { background: #e2e8f0; color: #475569; }
+.badge.무산 { background: #fee2e2; color: #b91c1c; }
+
+/* ---------- 기타 ---------- */
+.photo {
+    max-width: 340px;
+    max-height: 260px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: block;
+    margin: 12px 0;
+    box-shadow: var(--card-shadow);
+}
+.actions a {
+    display: inline-block;
+    margin: 2px 8px 2px 0;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    background: var(--primary-light);
+    border: 1px solid #c7d2fe;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background .15s, transform .12s;
+}
+.actions a:hover { background: #e0e7ff; transform: translateY(-1px); }
+.muted { color: var(--text-muted); font-size: 13px; }
+
+a { color: var(--primary-dark); }
+a:hover { color: var(--primary); }
+
+::selection { background: #c7d2fe; }

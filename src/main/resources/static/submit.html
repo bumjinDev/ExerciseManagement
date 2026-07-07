@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>인증 제출 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>인증 제출</h1>
+  <div class="card">
+    <p class="muted">수행 날짜는 오늘 또는 어제(소급 등록 유예 24시간)만 지정할 수 있다.
+       제출은 즉시 점수가 되지 않고, 기계 검증(마감·사진 해시 중복·메타데이터·소급 유예·인증 빈도)을
+       통과하면 확인 대기로 들어가 팀원 확인을 기다린다.</p>
+    <form id="submit-form">
+      <label>무게 (kg)</label>
+      <input name="weight" type="number" step="0.5" min="1" required>
+      <label>횟수</label>
+      <input name="reps" type="number" min="1" required>
+      <label>수행 날짜</label>
+      <input name="performedDate" type="date" required>
+      <label>인증샷</label>
+      <input name="photo" type="file" accept="image/*" required>
+      <button type="submit">제출하기</button>
+    </form>
+    <p class="msg" id="msg"></p>
+  </div>
+  <p><a href="#" id="back">← 챌린지 상세로</a> | <a href="#" id="my">내 제출 현황</a></p>
+</main>
+<script src="js/api.js"></script>
+<script>
+const id = qs('id');
+document.getElementById('back').href = 'challenge-detail.html?id=' + id;
+document.getElementById('my').href = 'my-submissions.html?id=' + id;
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+
+    // 수행 날짜 기본값 = 오늘
+    const now = new Date();
+    const p = n => String(n).padStart(2, '0');
+    document.querySelector('[name=performedDate]').value =
+        now.getFullYear() + '-' + p(now.getMonth() + 1) + '-' + p(now.getDate());
+
+    document.getElementById('submit-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        try {
+            const res = await postMultipart(
+                'api/challenges/' + id + '/submissions',
+                { weight: Number(f.weight.value), reps: Number(f.reps.value), performedDate: f.performedDate.value },
+                f.photo.files[0]);
+            showMsg(document.getElementById('msg'),
+                `접수 완료 (${res.submissionId}) — 상태: ${res.status}, 수행 날짜 ${res.linkedDate}. 팀원 확인을 기다립니다.`, true);
+            f.reset();
+        } catch (err) {
+            showMsg(document.getElementById('msg'), err.message, false);
+        }
+    });
+})();
+</script>
+</body>
+</html>
