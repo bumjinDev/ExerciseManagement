@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>예치 관리 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>예치 관리</h1>
+
+  <div class="card">
+    <h2 style="margin-top:0">현재 잔액: <span id="balance">-</span>원</h2>
+    <form id="charge-form">
+      <label>충전 금액 (모의 충전 — 외부 결제 연동 없음)</label>
+      <input name="amount" type="number" min="1" value="50000" required>
+      <button type="submit">충전하기</button>
+    </form>
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <h2>챌린지별 예치 상태</h2>
+  <table>
+    <thead><tr><th>챌린지</th><th>예치금</th><th>상태</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="3" class="muted">불러오는 중...</td></tr></tbody>
+  </table>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 예치 충전·현황 (F010). 상태: 진행 중 / 환급 / 차감 / 무산 반환
+async function load() {
+    const data = await api('api/deposits/me');
+    document.getElementById('balance').textContent = data.balance.toLocaleString();
+    const rows = document.getElementById('rows');
+    if (data.challengeDeposits.length === 0) {
+        rows.innerHTML = '<tr><td colspan="3" class="muted">참가한 챌린지가 없습니다.</td></tr>';
+        return;
+    }
+    rows.innerHTML = data.challengeDeposits.map(d => `
+        <tr>
+          <td><a href="challenge-detail.html?id=${d.challengeId}">${d.challengeId}</a></td>
+          <td>${d.amount.toLocaleString()}원</td>
+          <td>${d.state}</td>
+        </tr>`).join('');
+}
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+    await load();
+
+    document.getElementById('charge-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await postJson('api/deposits', { amount: Number(e.target.amount.value) });
+            showMsg(document.getElementById('msg'), '충전 완료 — 잔액 ' + res.balance.toLocaleString() + '원', true);
+            await load();
+        } catch (err) {
+            showMsg(document.getElementById('msg'), err.message, false);
+        }
+    });
+})();
+</script>
+</body>
+</html>

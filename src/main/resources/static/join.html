@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>회원가입 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>회원가입</h1>
+  <div class="card">
+    <form id="join-form">
+      <label>아이디 (4~20자)</label>
+      <input name="id" required>
+      <label>비밀번호 (8자 이상, 대문자·소문자·숫자·특수문자 각 1자 이상)</label>
+      <input name="pw" type="password" required>
+      <label>닉네임 (최대 20자)</label>
+      <input name="nickName" required>
+      <label>전화번호 (예: 010-1234-5678)</label>
+      <input name="tel" required>
+      <label>이메일</label>
+      <input name="email" type="email" required>
+      <button type="submit">가입하기</button>
+    </form>
+    <p class="msg" id="msg"></p>
+    <p class="muted"><a href="login.html">로그인으로 돌아가기</a></p>
+  </div>
+</main>
+<script src="js/api.js"></script>
+<script>
+document.getElementById('join-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    try {
+        await postJson('members/join', {
+            id: f.id.value, pw: f.pw.value, nickName: f.nickName.value,
+            tel: f.tel.value, email: f.email.value
+        });
+        alert('회원가입이 완료되었습니다. 로그인해 주세요.');
+        location.href = 'login.html';
+    } catch (err) {
+        showMsg(document.getElementById('msg'), err.message, false);
+    }
+});
+</script>
+</body>
+</html>

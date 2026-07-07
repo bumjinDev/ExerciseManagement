@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>순위·현황 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>순위·현황 <span class="muted" id="updated" style="font-size:13px"></span></h1>
+
+  <h2>팀 순위</h2>
+  <table>
+    <thead><tr><th>순위</th><th>팀</th><th>팀 볼륨 누적</th><th>상금 경계</th></tr></thead>
+    <tbody id="team-rows"></tbody>
+  </table>
+  <p class="msg" id="my-team"></p>
+
+  <h2>우리 팀 기여도</h2>
+  <table>
+    <thead><tr><th>순위</th><th>팀원</th><th>개인 볼륨</th><th>기여도</th></tr></thead>
+    <tbody id="contrib-rows"></tbody>
+  </table>
+
+  <h2>내 목표 달성 현황</h2>
+  <div class="card" id="my-goal"></div>
+
+  <p><a href="#" id="back">← 챌린지 상세로</a></p>
+</main>
+<script src="js/api.js"></script>
+<script>
+// 순위·현황 (6.6): 화면의 JS가 이 API를 주기 호출(폴링)해 화면 전체를 갱신한다 — 명세 방식 그대로
+const id = qs('id');
+const POLL_MS = 5000;
+document.getElementById('back').href = 'challenge-detail.html?id=' + id;
+
+let myTeamId = null;
+
+async function refresh() {
+    const r = await api('api/challenges/' + id + '/rankings');
+    myTeamId = r.myTeam ? r.myTeam.teamId : null;
+
+    document.getElementById('team-rows').innerHTML = r.teamRankings.map(t => `
+        <tr class="${t.rank <= r.prizeTeamCount ? 'prize' : ''} ${t.teamId === myTeamId ? 'highlight' : ''}">
+          <td>${t.rank}</td>
+          <td>${t.teamId}${t.teamId === myTeamId ? ' (우리 팀)' : ''}</td>
+          <td>${t.teamVolume}</td>
+          <td>${t.rank <= r.prizeTeamCount ? '상금권' : '-'}</td>
+        </tr>`).join('');
+
+    if (r.myTeam) {
+        document.getElementById('my-team').textContent =
+            `우리 팀 순위 ${r.myTeam.rank}위 — 상금 경계 ${r.myTeam.inPrizeBoundary ? '안(상금권)' : '밖'}`;
+        document.getElementById('my-team').className = 'msg ' + (r.myTeam.inPrizeBoundary ? 'ok' : 'error');
+    }
+
+    document.getElementById('contrib-rows').innerHTML = r.teamContributions.map(m => `
+        <tr>
+          <td>${m.rank}</td>
+          <td>${m.participantId}</td>
+          <td>${m.memberVolume}</td>
+          <td>${(m.contributionRatio * 100).toFixed(1)}%</td>
+        </tr>`).join('');
+
+    const g = r.myGoal;
+    document.getElementById('my-goal').innerHTML =
+        `목표 ${g.targetCount}회 중 <b>${g.achievedCount}회</b> 달성 — ` +
+        (g.achieved ? '<span class="msg ok">달성 (예치금 환급 대상)</span>'
+                    : '<span class="msg error">미달 (현재 기준 차감 대상)</span>');
+
+    document.getElementById('updated').textContent = '(갱신: ' + new Date().toLocaleTimeString() + ', ' + (POLL_MS / 1000) + '초 주기)';
+}
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+    try {
+        await refresh();
+        setInterval(() => refresh().catch(() => {}), POLL_MS);
+    } catch (err) {
+        document.querySelector('main').insertAdjacentHTML('afterbegin',
+            '<div class="card msg error">' + err.message + '</div>');
+    }
+})();
+</script>
+</body>
+</html>

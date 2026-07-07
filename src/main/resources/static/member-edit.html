@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>내 정보 수정 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>내 정보 수정</h1>
+  <div class="card">
+    <form id="edit-form">
+      <label>아이디 (변경 불가)</label>
+      <input name="id" readonly>
+      <label>새 비밀번호 (수정 시 필수 — 이 값으로 재설정된다)</label>
+      <input name="pw" type="password" required>
+      <label>닉네임</label>
+      <input name="nickName" required>
+      <label>전화번호</label>
+      <input name="tel" required>
+      <label>이메일</label>
+      <input name="email" type="email" required>
+      <button type="submit">수정하기</button>
+    </form>
+    <p class="msg" id="msg"></p>
+  </div>
+</main>
+<script src="js/api.js"></script>
+<script>
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+    const f = document.getElementById('edit-form');
+
+    // 현재 정보 불러와 폼 채우기 (비밀번호 해시는 응답에 없음)
+    const me = await api('members/edit?editid=' + encodeURIComponent(user.userId));
+    f.id.value = me.id; f.nickName.value = me.nickName;
+    f.tel.value = me.tel; f.email.value = me.email;
+
+    f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await postJson('members/edit', {
+                id: f.id.value, pw: f.pw.value, nickName: f.nickName.value,
+                tel: f.tel.value, email: f.email.value
+            });
+            showMsg(document.getElementById('msg'), '수정 완료. 닉네임이 갱신된 JWT 쿠키가 재발급되었습니다.', true);
+        } catch (err) {
+            showMsg(document.getElementById('msg'), err.message, false);
+        }
+    });
+})();
+</script>
+</body>
+</html>
