@@ -1,0 +1,356 @@
+{
+  "info": {
+    "_postman_id": "a7e3f2b0-5c1d-4e8a-9f00-exmgmt-members",
+    "name": "ExerciseManagement 회원관리·인증",
+    "description": "단계 2 회원 관리 기능(가입·로그인·조회·수정·로그아웃) 테스트 컬렉션.\n\n실행 전제:\n1) 서버 기동: gradlew bootRun (환경변수 JWT_SECRET_KEY, DB_PASSWORD 필요 — docs/가이드 참조)\n2) 01번부터 순서대로 실행 (로그인 이후 요청은 Postman 쿠키 저장소의 Authorization 쿠키를 자동 사용)\n3) 재실행 시 tester01이 이미 존재하면 01번은 409가 나온다. 초기화하려면 DB에서 DELETE 후 커밋:\n   DELETE FROM userentity_roles WHERE userid='tester01';\n   DELETE FROM userentity WHERE userid='tester01';\n   DELETE FROM membertbl WHERE id='tester01';",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8186/exercise"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. 회원 가입 (정상 → 200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('완료 메시지 반환', function () { pm.expect(pm.response.json().message).to.include('완료'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"tester01\",\n  \"pw\": \"Test1234!\",\n  \"nickName\": \"테스터일\",\n  \"tel\": \"010-1234-5678\",\n  \"email\": \"tester01@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "join"]
+        }
+      }
+    },
+    {
+      "name": "02. 회원 가입 - 아이디 중복 (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('409 Conflict', function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"tester01\",\n  \"pw\": \"Test1234!\",\n  \"nickName\": \"다른닉네임\",\n  \"tel\": \"010-9999-8888\",\n  \"email\": \"other@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "join"]
+        }
+      }
+    },
+    {
+      "name": "03. 회원 가입 - 예약어 아이디 (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('422 Unprocessable Entity', function () { pm.response.to.have.status(422); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"admin\",\n  \"pw\": \"Test1234!\",\n  \"nickName\": \"관리자행세\",\n  \"tel\": \"010-1111-2222\",\n  \"email\": \"admin@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "join"]
+        }
+      }
+    },
+    {
+      "name": "04. 회원 가입 - 유효성 실패 (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });",
+              "pm.test('pw 필드 에러 메시지 존재', function () { pm.expect(pm.response.json()).to.have.property('pw'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"tester02\",\n  \"pw\": \"1234\",\n  \"nickName\": \"테스터이\",\n  \"tel\": \"010-2222-3333\",\n  \"email\": \"tester02@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/join",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "join"]
+        }
+      }
+    },
+    {
+      "name": "05. 로그인 (정상 → 302 리다이렉트 → 200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Postman 기본 설정(리다이렉트 자동 추적)이면 /members/loginSuccess 의 최종 200 응답을 받는다",
+              "pm.test('최종 200 OK (loginSuccess)', function () { pm.response.to.have.status(200); });",
+              "pm.test('userId 반환', function () { pm.expect(pm.response.json().userId).to.eql('tester01'); });",
+              "pm.test('Authorization 쿠키 발급', function () { pm.expect(pm.cookies.has('Authorization')).to.be.true; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userid\": \"tester01\",\n  \"password\": \"Test1234!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["login"]
+        }
+      }
+    },
+    {
+      "name": "06. 로그인 - 비밀번호 오류 (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 Unauthorized', function () { pm.response.to.have.status(401); });",
+              "pm.test('실패 메시지 반환', function () { pm.expect(pm.response.json().message).to.include('아이디 또는 비밀번호'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userid\": \"tester01\",\n  \"password\": \"WrongPass1!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["login"]
+        }
+      }
+    },
+    {
+      "name": "07. 로그인 성공 확인 (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('userId·userName 반환', function () {",
+              "    var body = pm.response.json();",
+              "    pm.expect(body).to.have.property('userId');",
+              "    pm.expect(body).to.have.property('userName');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/members/loginSuccess",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "loginSuccess"]
+        }
+      }
+    },
+    {
+      "name": "08. 회원 조회 (200, pw 미포함)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('비밀번호 해시 미포함', function () { pm.expect(pm.response.json().pw).to.be.null; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/members/edit?editid=tester01",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "edit"],
+          "query": [
+            { "key": "editid", "value": "tester01" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "09. 회원 정보 수정 (정상 → 200, JWT 재발급)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('완료 메시지 반환', function () { pm.expect(pm.response.json().message).to.include('완료'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"tester01\",\n  \"pw\": \"Test1234!\",\n  \"nickName\": \"테스터일수정\",\n  \"tel\": \"010-1234-5678\",\n  \"email\": \"tester01@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/edit",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "edit"]
+        }
+      }
+    },
+    {
+      "name": "10. 회원 정보 수정 - 예약어 닉네임 (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('422 Unprocessable Entity', function () { pm.response.to.have.status(422); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"tester01\",\n  \"pw\": \"Test1234!\",\n  \"nickName\": \"admin\",\n  \"tel\": \"010-1234-5678\",\n  \"email\": \"tester01@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/members/edit",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "edit"]
+        }
+      }
+    },
+    {
+      "name": "11. 로그아웃 (200, 쿠키 제거)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["logout"]
+        }
+      }
+    },
+    {
+      "name": "12. 로그아웃 후 보호 API 접근 (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 Unauthorized', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/members/loginSuccess",
+          "host": ["{{baseUrl}}"],
+          "path": ["members", "loginSuccess"]
+        }
+      }
+    }
+  ]
+}
