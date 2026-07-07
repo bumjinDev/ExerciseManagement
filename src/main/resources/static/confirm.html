@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>팀원 확인 - 팀 대항 챌린지</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>팀원 확인</h1>
+  <p class="muted">같은 팀 팀원의 확인 대기 제출이다. 인증샷이 실제 그 수행을 담았는지 보고 확인 또는 반려한다.
+     점수를 움직이는 것은 제출이 아니라 이 확인이다 (본인 제출은 목록에 나오지 않는다).</p>
+  <div id="list"><div class="card muted">불러오는 중...</div></div>
+  <p><a href="#" id="back">← 챌린지 상세로</a></p>
+</main>
+<script src="js/api.js"></script>
+<script>
+const id = qs('id');
+document.getElementById('back').href = 'challenge-detail.html?id=' + id;
+
+async function load() {
+    const data = await api('api/challenges/' + id + '/submissions/pending');
+    const list = document.getElementById('list');
+    if (!data.teamId) {
+        list.innerHTML = '<div class="card muted">아직 팀이 편성되지 않았습니다.</div>';
+        return;
+    }
+    if (data.pendingSubmissions.length === 0) {
+        list.innerHTML = '<div class="card muted">확인 대기 중인 팀원 제출이 없습니다.</div>';
+        return;
+    }
+    list.innerHTML = data.pendingSubmissions.map(s => `
+        <div class="card">
+          <b>${s.participantId}</b> — ${s.weight}kg × ${s.reps}회 = 볼륨 ${s.volume}
+          <div class="muted">수행 날짜 ${s.linkedDate} / 등록 ${s.registeredAt.replace('T', ' ')}</div>
+          <img class="photo" src="api/submissions/${s.submissionId}/photo" alt="인증샷">
+          <div>
+            <button onclick="decide('${s.submissionId}', '확인')">확인</button>
+            <button class="danger" onclick="decide('${s.submissionId}', '반려')">반려</button>
+          </div>
+        </div>`).join('');
+}
+
+async function decide(submissionId, decision) {
+    try {
+        const res = await postJson('api/submissions/' + submissionId + '/confirmations', { decision });
+        alert(decision === '확인'
+            ? `확인 완료 — 볼륨 ${res.appliedVolume}이 제출자 개인 누적과 팀 누적에 반영되었습니다.`
+            : '반려 처리되었습니다. 이 제출은 무효로 종료됩니다.');
+        await load();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+(async () => {
+    const user = await renderNav(true);
+    if (!user) return;
+    try { await load(); }
+    catch (err) { document.getElementById('list').innerHTML = '<div class="card msg error">' + err.message + '</div>'; }
+})();
+</script>
+</body>
+</html>
