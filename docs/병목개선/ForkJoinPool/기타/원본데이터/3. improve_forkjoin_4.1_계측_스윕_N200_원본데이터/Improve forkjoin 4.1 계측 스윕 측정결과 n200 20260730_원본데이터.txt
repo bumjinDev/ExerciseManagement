@@ -1,0 +1,415 @@
+오후 5:33:43: Executing ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'…
+> Task :compileJava UP-TO-DATE
+> Task :processResources
+> Task :classes
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()
+=== improve() CPU 점유 측정판 (분할 개수 스윕 · 병렬도 6·12 고정 · CPU 시간을 쓴 스레드별로 나눠 측정 · 진단용) ===
+availableProcessors()=12 (논리). 이 기계: 물리 6 / 논리 12. 풀 병렬도를 6과 12 두 점으로 고정하고, 각각에서 목표 분할 개수를 스윕한다.
+PID=3176 — 보조 관찰: 실행 중 별도 창에서 [jcmd 3176 Thread.print] 1회 실행하면 JVM 내부 스레드 목록을 볼 수 있다
+프로세스 CPU 타이머: 지원
+고정 입력: 정원 10 · 시드 42 · 허용폭 10% · 시작=greedy   |   워밍업 2 · 측정 5회 평균
+측정 N: 200
+스윕 병렬도: 6 12
+스윕 목표 분할 개수: 1 2 3 4 5 6 7 8 9 10 11 12 18 24 36
+(워커별 장부는 엔진 improve()의 pool.shutdown()이 주석 상태여야 채워진다 — 현재 주석 상태)
+[열 설명]
+  팀당 인원 : 팀 하나에 배정한 인원 수(정원). 이번 측정은 10으로 고정
+  작업 분할 개수 : 이 설정에서 실제로 만들어지는 말단 작업 수. 목표 분할 개수와 같아야 한다 (순차 행은 '-')
+  스레드   : 풀 병렬도 (순차 행은 '-')
+  elapsed  : 메소드 전체 수행 시간(평균, ns)
+  procCPU  : 프로세스 전체 CPU 시간(평균, ns) = 코어들이 일한 시간의 총합
+  busyCore : 평균 바쁜 코어 수 = procCPU ÷ elapsed (상한 논리 12 / 물리 6)
+  mainCPU  : main 스레드 CPU 시간(ns)
+  workerCPU: ForkJoinPool 워커 스레드 CPU 합(ns) — 이번 호출 구간의 증가분
+  기타 자바 스레드 : main·워커 외 Java 스레드 CPU 합(ns) - 출처 : getThreadInfo()
+  자바 아닌 스레드 : procCPU에서 Java 스레드 CPU 합(main + 워커 + 기타 자바 스레드)을 뺀 나머지(ns).
+                     ThreadMXBean이 id를 주지 않아 스레드별로 잴 수 없는 몫이다.
+                     GC 작업 스레드·JIT 컴파일러 스레드·VM Thread 등이 들어가고, 측정에서 빠진 몫도 섞인다.
+  GC       : GC 수집 시간 증가분(ms, 실제 흐른 시간 근사). '자바 아닌 스레드' 값을 설명할 후보
+  speedup  : 순차 elapsed ÷ 병렬 elapsed (순차 행은 '-')
+ N(명) |  팀당 인원(명) | 구현 |  스레드(개) |  작업 분할 개수(개) | elapsed(ns) | speedup(배) |  procCPU(ns) | busyCore(개) | mainCPU(ns) | workerCPU(ns) |       기타 자바 스레드(ns) |       자바 아닌 스레드(ns) | GC(ms)
+　-----+-　　　　　-----+-　　-+-　　　　----+-　　　　　　　------+-------------+-　----------+--------------+-　-----------+-------------+---------------+-　　　　　　　-------------+-　　　　　　　-------------+-------
+　 200 | 　　　　　  10 | 순차 | 　　　　  - | 　　　　　　　    - |  4085990340 | 　        - |   4109375000 | 　      1.01 |  4046875000 |             0 | 　　　　　　　           0 | 　　　　　　　    59375000 |     15
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    1 |  4126835160 | 　     0.99 |   4112500000 | 　      1.00 |           0 |    4084375000 | 　　　　　　　           0 | 　　　　　　　    28125000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 67840ns · 평가 반복문 합 4119177820ns · 평가 1회당 워커 CPU 4777ns
+   [N=200 스레드 6 분할 1 워커별 CPU 장부] 활동 워커 1개, CPU 합 4640625000ns
+      ForkJoinPool-8-worker-1         4640625000 ns  (100.0%)
+      최대/최소 = 1.00배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    2 |  2778262140 | 　     1.47 |   5437500000 | 　      1.96 |           0 |    5418750000 | 　　　　　　　           0 | 　　　　　　　    18750000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 126640ns · 평가 반복문 합 5468815600ns · 평가 1회당 워커 CPU 6338ns
+   [N=200 스레드 6 분할 2 워커별 CPU 장부] 활동 워커 6개, CPU 합 5453125000ns
+      ForkJoinPool-16-worker-1        2750000000 ns  (50.4%)
+      ForkJoinPool-16-worker-2        2703125000 ns  (49.6%)
+      ForkJoinPool-16-worker-3                 0 ns  ( 0.0%)
+      ForkJoinPool-16-worker-4                 0 ns  ( 0.0%)
+      ForkJoinPool-16-worker-5                 0 ns  ( 0.0%)
+      ForkJoinPool-16-worker-6                 0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    3 |  2332609480 | 　     1.75 |   6737500000 | 　      2.89 |           0 |    6662500000 | 　　　　　　　           0 | 　　　　　　　    75000000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 191040ns · 평가 반복문 합 6735637740ns · 평가 1회당 워커 CPU 7792ns
+   [N=200 스레드 6 분할 3 워커별 CPU 장부] 활동 워커 6개, CPU 합 6640625000ns
+      ForkJoinPool-24-worker-1        2234375000 ns  (33.6%)
+      ForkJoinPool-24-worker-5        2125000000 ns  (32.0%)
+      ForkJoinPool-24-worker-6        2093750000 ns  (31.5%)
+      ForkJoinPool-24-worker-2         140625000 ns  ( 2.1%)
+      ForkJoinPool-24-worker-3          46875000 ns  ( 0.7%)
+      ForkJoinPool-24-worker-4                 0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    4 |  2153180720 | 　     1.90 |   8093750000 | 　      3.76 |           0 |    8025000000 | 　　　　　　　           0 | 　　　　　　　    68750000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 309220ns · 평가 반복문 합 8183903920ns · 평가 1회당 워커 CPU 9386ns
+   [N=200 스레드 6 분할 4 워커별 CPU 장부] 활동 워커 6개, CPU 합 8203125000ns
+      ForkJoinPool-32-worker-3        2078125000 ns  (25.3%)
+      ForkJoinPool-32-worker-1        2062500000 ns  (25.1%)
+      ForkJoinPool-32-worker-2        2062500000 ns  (25.1%)
+      ForkJoinPool-32-worker-4        2000000000 ns  (24.4%)
+      ForkJoinPool-32-worker-5                 0 ns  ( 0.0%)
+      ForkJoinPool-32-worker-6                 0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    5 |  2054942500 | 　     1.99 |   9681250000 | 　      4.71 |     3125000 |    9584375000 | 　　　　　　　           0 | 　　　　　　　    93750000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 357400ns · 평가 반복문 합 9682496240ns · 평가 1회당 워커 CPU 11210ns
+   [N=200 스레드 6 분할 5 워커별 CPU 장부] 활동 워커 6개, CPU 합 9281250000ns
+      ForkJoinPool-40-worker-4        1890625000 ns  (20.4%)
+      ForkJoinPool-40-worker-1        1859375000 ns  (20.0%)
+      ForkJoinPool-40-worker-2        1843750000 ns  (19.9%)
+      ForkJoinPool-40-worker-3        1843750000 ns  (19.9%)
+      ForkJoinPool-40-worker-5        1843750000 ns  (19.9%)
+      ForkJoinPool-40-worker-6                 0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    6 |  1944739240 | 　     2.10 |  10784375000 | 　      5.55 |     9375000 |   10718750000 | 　　　　　　　           0 | 　　　　　　　    56250000 |     16
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 455360ns · 평가 반복문 합 10866294240ns · 평가 1회당 워커 CPU 12537ns
+   [N=200 스레드 6 분할 6 워커별 CPU 장부] 활동 워커 6개, CPU 합 8875000000ns
+      ForkJoinPool-48-worker-1        1515625000 ns  (17.1%)
+      ForkJoinPool-48-worker-2        1484375000 ns  (16.7%)
+      ForkJoinPool-48-worker-3        1484375000 ns  (16.7%)
+      ForkJoinPool-48-worker-4        1468750000 ns  (16.5%)
+      ForkJoinPool-48-worker-5        1468750000 ns  (16.5%)
+      ForkJoinPool-48-worker-6        1453125000 ns  (16.4%)
+      최대/최소 = 1.04배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    7 |  1962660200 | 　     2.08 |   8671875000 | 　      4.42 |           0 |    8584375000 | 　　　　　　　           0 | 　　　　　　　    87500000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 732540ns · 평가 반복문 합 8820905460ns · 평가 1회당 워커 CPU 10040ns
+   [N=200 스레드 6 분할 7 워커별 CPU 장부] 활동 워커 6개, CPU 합 8500000000ns
+      ForkJoinPool-56-worker-6        1468750000 ns  (17.3%)
+      ForkJoinPool-56-worker-3        1453125000 ns  (17.1%)
+      ForkJoinPool-56-worker-1        1437500000 ns  (16.9%)
+      ForkJoinPool-56-worker-5        1406250000 ns  (16.5%)
+      ForkJoinPool-56-worker-4        1375000000 ns  (16.2%)
+      ForkJoinPool-56-worker-2        1359375000 ns  (16.0%)
+      최대/최소 = 1.08배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    8 |  1973708260 | 　     2.07 |   8871875000 | 　      4.50 |     3125000 |    8821875000 | 　　　　　　　           0 | 　　　　　　　    46875000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 662060ns · 평가 반복문 합 8981098580ns · 평가 1회당 워커 CPU 10318ns
+   [N=200 스레드 6 분할 8 워커별 CPU 장부] 활동 워커 6개, CPU 합 9718750000ns
+      ForkJoinPool-64-worker-6        1718750000 ns  (17.7%)
+      ForkJoinPool-64-worker-4        1671875000 ns  (17.2%)
+      ForkJoinPool-64-worker-1        1640625000 ns  (16.9%)
+      ForkJoinPool-64-worker-3        1609375000 ns  (16.6%)
+      ForkJoinPool-64-worker-2        1562500000 ns  (16.1%)
+      ForkJoinPool-64-worker-5        1515625000 ns  (15.6%)
+      최대/최소 = 1.13배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　    9 |  2066034380 | 　     1.98 |   9759375000 | 　      4.72 |     3125000 |    9637500000 | 　　　　　　　           0 | 　　　　　　　   118750000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 650060ns · 평가 반복문 합 9945893640ns · 평가 1회당 워커 CPU 11272ns
+   [N=200 스레드 6 분할 9 워커별 CPU 장부] 활동 워커 6개, CPU 합 10109375000ns
+      ForkJoinPool-72-worker-1        1828125000 ns  (18.1%)
+      ForkJoinPool-72-worker-4        1703125000 ns  (16.8%)
+      ForkJoinPool-72-worker-5        1703125000 ns  (16.8%)
+      ForkJoinPool-72-worker-2        1671875000 ns  (16.5%)
+      ForkJoinPool-72-worker-3        1671875000 ns  (16.5%)
+      ForkJoinPool-72-worker-6        1531250000 ns  (15.1%)
+      최대/최소 = 1.19배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   10 |  2021599620 | 　     2.02 |  10165625000 | 　      5.03 |           0 |   10087500000 | 　　　　　　　           0 | 　　　　　　　    78125000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 716260ns · 평가 반복문 합 10118254860ns · 평가 1회당 워커 CPU 11798ns
+   [N=200 스레드 6 분할 10 워커별 CPU 장부] 활동 워커 6개, CPU 합 9937500000ns
+      ForkJoinPool-80-worker-1        1750000000 ns  (17.6%)
+      ForkJoinPool-80-worker-4        1734375000 ns  (17.5%)
+      ForkJoinPool-80-worker-3        1703125000 ns  (17.1%)
+      ForkJoinPool-80-worker-6        1609375000 ns  (16.2%)
+      ForkJoinPool-80-worker-5        1578125000 ns  (15.9%)
+      ForkJoinPool-80-worker-2        1562500000 ns  (15.7%)
+      최대/최소 = 1.12배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   11 |  1999476060 | 　     2.04 |  10334375000 | 　      5.17 |     3125000 |   10296875000 | 　　　　　　　           0 | 　　　　　　　    34375000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 740320ns · 평가 반복문 합 10394487060ns · 평가 1회당 워커 CPU 12043ns
+   [N=200 스레드 6 분할 11 워커별 CPU 장부] 활동 워커 6개, CPU 합 10000000000ns
+      ForkJoinPool-88-worker-2        1750000000 ns  (17.5%)
+      ForkJoinPool-88-worker-1        1671875000 ns  (16.7%)
+      ForkJoinPool-88-worker-6        1671875000 ns  (16.7%)
+      ForkJoinPool-88-worker-4        1656250000 ns  (16.6%)
+      ForkJoinPool-88-worker-3        1625000000 ns  (16.3%)
+      ForkJoinPool-88-worker-5        1625000000 ns  (16.3%)
+      최대/최소 = 1.08배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   12 |  2031916540 | 　     2.01 |  10468750000 | 　      5.15 |     3125000 |   10368750000 | 　　　　　　　           0 | 　　　　　　　    96875000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 822020ns · 평가 반복문 합 10444161580ns · 평가 1회당 워커 CPU 12127ns
+   [N=200 스레드 6 분할 12 워커별 CPU 장부] 활동 워커 6개, CPU 합 10484375000ns
+      ForkJoinPool-96-worker-1        1859375000 ns  (17.7%)
+      ForkJoinPool-96-worker-2        1750000000 ns  (16.7%)
+      ForkJoinPool-96-worker-4        1750000000 ns  (16.7%)
+      ForkJoinPool-96-worker-6        1734375000 ns  (16.5%)
+      ForkJoinPool-96-worker-3        1718750000 ns  (16.4%)
+      ForkJoinPool-96-worker-5        1671875000 ns  (15.9%)
+      최대/최소 = 1.11배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   18 |  1976460180 | 　     2.07 |  10562500000 | 　      5.34 |     3125000 |   10446875000 | 　　　　　　　           0 | 　　　　　　　   109375000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 1055840ns · 평가 반복문 합 10653466160ns · 평가 1회당 워커 CPU 12219ns
+   [N=200 스레드 6 분할 18 워커별 CPU 장부] 활동 워커 6개, CPU 합 10390625000ns
+      ForkJoinPool-104-worker-6       1796875000 ns  (17.3%)
+      ForkJoinPool-104-worker-4       1750000000 ns  (16.8%)
+      ForkJoinPool-104-worker-1       1734375000 ns  (16.7%)
+      ForkJoinPool-104-worker-2       1734375000 ns  (16.7%)
+      ForkJoinPool-104-worker-3       1734375000 ns  (16.7%)
+      ForkJoinPool-104-worker-5       1640625000 ns  (15.8%)
+      최대/최소 = 1.10배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   24 |  1972558900 | 　     2.07 |  10543750000 | 　      5.35 |           0 |   10356250000 | 　　　　　　　           0 | 　　　　　　　   187500000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 1198240ns · 평가 반복문 합 10685476580ns · 평가 1회당 워커 CPU 12113ns
+   [N=200 스레드 6 분할 24 워커별 CPU 장부] 활동 워커 6개, CPU 합 10328125000ns
+      ForkJoinPool-112-worker-3       1765625000 ns  (17.1%)
+      ForkJoinPool-112-worker-4       1750000000 ns  (16.9%)
+      ForkJoinPool-112-worker-6       1750000000 ns  (16.9%)
+      ForkJoinPool-112-worker-1       1734375000 ns  (16.8%)
+      ForkJoinPool-112-worker-5       1718750000 ns  (16.6%)
+      ForkJoinPool-112-worker-2       1609375000 ns  (15.6%)
+      최대/최소 = 1.10배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　  6 | 　　　　　　　   36 |  1944565240 | 　     2.10 |  10784375000 | 　      5.55 |           0 |   10775000000 | 　　　　　　　           0 | 　　　　　　　     9375000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 1469240ns · 평가 반복문 합 10848596520ns · 평가 1회당 워커 CPU 12602ns
+   [N=200 스레드 6 분할 36 워커별 CPU 장부] 활동 워커 7개, CPU 합 10937500000ns
+      ForkJoinPool-120-worker-6       1796875000 ns  (16.4%)
+      ForkJoinPool-120-worker-5       1765625000 ns  (16.1%)
+      ForkJoinPool-120-worker-2       1718750000 ns  (15.7%)
+      ForkJoinPool-120-worker-4       1718750000 ns  (15.7%)
+      ForkJoinPool-120-worker-1       1703125000 ns  (15.6%)
+      ForkJoinPool-120-worker-3       1703125000 ns  (15.6%)
+      ForkJoinPool-120-worker-7        531250000 ns  ( 4.9%)
+      최대/최소 = 3.38배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    1 |  4123662660 | 　     0.99 |   4181250000 | 　      1.01 |           0 |    4084375000 | 　　　　　　　           0 | 　　　　　　　    96875000 |     21
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 86860ns · 평가 반복문 합 4117656540ns · 평가 1회당 워커 CPU 4777ns
+   [N=200 스레드 12 분할 1 워커별 CPU 장부] 활동 워커 1개, CPU 합 3968750000ns
+      ForkJoinPool-128-worker-1       3968750000 ns  (100.0%)
+      최대/최소 = 1.00배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    2 |  2831588200 | 　     1.44 |   5559375000 | 　      1.96 |     3125000 |    5490625000 | 　　　　　　　           0 | 　　　　　　　    65625000 |     20
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 146040ns · 평가 반복문 합 5577864500ns · 평가 1회당 워커 CPU 6422ns
+   [N=200 스레드 12 분할 2 워커별 CPU 장부] 활동 워커 12개, CPU 합 5390625000ns
+      ForkJoinPool-136-worker-1       2703125000 ns  (50.1%)
+      ForkJoinPool-136-worker-4       2203125000 ns  (40.9%)
+      ForkJoinPool-136-worker-2        484375000 ns  ( 9.0%)
+      ForkJoinPool-136-worker-3                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-5                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-6                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-7                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-8                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-9                0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-10               0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-11               0 ns  ( 0.0%)
+      ForkJoinPool-136-worker-12               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    3 |  2741840740 | 　     1.49 |   7578125000 | 　      2.76 |           0 |    7496875000 | 　　　　　　　           0 | 　　　　　　　    81250000 |     21
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 228060ns · 평가 반복문 합 7695073460ns · 평가 1회당 워커 CPU 8768ns
+   [N=200 스레드 12 분할 3 워커별 CPU 장부] 활동 워커 12개, CPU 합 7375000000ns
+      ForkJoinPool-144-worker-5       2375000000 ns  (32.2%)
+      ForkJoinPool-144-worker-2       2218750000 ns  (30.1%)
+      ForkJoinPool-144-worker-11      1703125000 ns  (23.1%)
+      ForkJoinPool-144-worker-1        421875000 ns  ( 5.7%)
+      ForkJoinPool-144-worker-10       390625000 ns  ( 5.3%)
+      ForkJoinPool-144-worker-3        203125000 ns  ( 2.8%)
+      ForkJoinPool-144-worker-8         62500000 ns  ( 0.8%)
+      ForkJoinPool-144-worker-4                0 ns  ( 0.0%)
+      ForkJoinPool-144-worker-6                0 ns  ( 0.0%)
+      ForkJoinPool-144-worker-7                0 ns  ( 0.0%)
+      ForkJoinPool-144-worker-9                0 ns  ( 0.0%)
+      ForkJoinPool-144-worker-12               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    4 |  2245071920 | 　     1.82 |   8578125000 | 　      3.82 |     3125000 |    8471875000 | 　　　　　　　           0 | 　　　　　　　   103125000 |     21
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 284380ns · 평가 반복문 합 8646795000ns · 평가 1회당 워커 CPU 9909ns
+   [N=200 스레드 12 분할 4 워커별 CPU 장부] 활동 워커 12개, CPU 합 8890625000ns
+      ForkJoinPool-152-worker-1       2234375000 ns  (25.1%)
+      ForkJoinPool-152-worker-2       2203125000 ns  (24.8%)
+      ForkJoinPool-152-worker-11      1765625000 ns  (19.9%)
+      ForkJoinPool-152-worker-12      1750000000 ns  (19.7%)
+      ForkJoinPool-152-worker-3        359375000 ns  ( 4.0%)
+      ForkJoinPool-152-worker-4        359375000 ns  ( 4.0%)
+      ForkJoinPool-152-worker-8        109375000 ns  ( 1.2%)
+      ForkJoinPool-152-worker-9        109375000 ns  ( 1.2%)
+      ForkJoinPool-152-worker-5                0 ns  ( 0.0%)
+      ForkJoinPool-152-worker-6                0 ns  ( 0.0%)
+      ForkJoinPool-152-worker-7                0 ns  ( 0.0%)
+      ForkJoinPool-152-worker-10               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    5 |  1921886260 | 　     2.13 |   8993750000 | 　      4.68 |           0 |    8975000000 | 　　　　　　　           0 | 　　　　　　　    18750000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 333540ns · 평가 반복문 합 9042426380ns · 평가 1회당 워커 CPU 10497ns
+   [N=200 스레드 12 분할 5 워커별 CPU 장부] 활동 워커 12개, CPU 합 8343750000ns
+      ForkJoinPool-160-worker-1       1734375000 ns  (20.8%)
+      ForkJoinPool-160-worker-2       1734375000 ns  (20.8%)
+      ForkJoinPool-160-worker-4       1718750000 ns  (20.6%)
+      ForkJoinPool-160-worker-10      1625000000 ns  (19.5%)
+      ForkJoinPool-160-worker-12      1328125000 ns  (15.9%)
+      ForkJoinPool-160-worker-3         78125000 ns  ( 0.9%)
+      ForkJoinPool-160-worker-6         46875000 ns  ( 0.6%)
+      ForkJoinPool-160-worker-9         46875000 ns  ( 0.6%)
+      ForkJoinPool-160-worker-5         31250000 ns  ( 0.4%)
+      ForkJoinPool-160-worker-7                0 ns  ( 0.0%)
+      ForkJoinPool-160-worker-8                0 ns  ( 0.0%)
+      ForkJoinPool-160-worker-11               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    6 |  1799688260 | 　     2.27 |  10209375000 | 　      5.67 |     3125000 |   10146875000 | 　　　　　　　           0 | 　　　　　　　    56250000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 443120ns · 평가 반복문 합 10384840620ns · 평가 1회당 워커 CPU 11868ns
+   [N=200 스레드 12 분할 6 워커별 CPU 장부] 활동 워커 12개, CPU 합 9546875000ns
+      ForkJoinPool-168-worker-1       1656250000 ns  (17.3%)
+      ForkJoinPool-168-worker-2       1609375000 ns  (16.9%)
+      ForkJoinPool-168-worker-8       1562500000 ns  (16.4%)
+      ForkJoinPool-168-worker-7       1531250000 ns  (16.0%)
+      ForkJoinPool-168-worker-11      1437500000 ns  (15.1%)
+      ForkJoinPool-168-worker-12       859375000 ns  ( 9.0%)
+      ForkJoinPool-168-worker-3        703125000 ns  ( 7.4%)
+      ForkJoinPool-168-worker-5         93750000 ns  ( 1.0%)
+      ForkJoinPool-168-worker-4         62500000 ns  ( 0.7%)
+      ForkJoinPool-168-worker-6         31250000 ns  ( 0.3%)
+      ForkJoinPool-168-worker-9                0 ns  ( 0.0%)
+      ForkJoinPool-168-worker-10               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    7 |  1672159040 | 　     2.44 |  10956250000 | 　      6.55 |           0 |   10790625000 | 　　　　　　　           0 | 　　　　　　　   165625000 |     20
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 494340ns · 평가 반복문 합 11199214200ns · 평가 1회당 워커 CPU 12621ns
+   [N=200 스레드 12 분할 7 워커별 CPU 장부] 활동 워커 12개, CPU 합 10500000000ns
+      ForkJoinPool-176-worker-7       1562500000 ns  (14.9%)
+      ForkJoinPool-176-worker-1       1531250000 ns  (14.6%)
+      ForkJoinPool-176-worker-2       1515625000 ns  (14.4%)
+      ForkJoinPool-176-worker-8       1500000000 ns  (14.3%)
+      ForkJoinPool-176-worker-12      1453125000 ns  (13.8%)
+      ForkJoinPool-176-worker-3       1437500000 ns  (13.7%)
+      ForkJoinPool-176-worker-11      1359375000 ns  (12.9%)
+      ForkJoinPool-176-worker-6         62500000 ns  ( 0.6%)
+      ForkJoinPool-176-worker-4         31250000 ns  ( 0.3%)
+      ForkJoinPool-176-worker-9         31250000 ns  ( 0.3%)
+      ForkJoinPool-176-worker-5         15625000 ns  ( 0.1%)
+      ForkJoinPool-176-worker-10               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    8 |  1711039520 | 　     2.39 |  12800000000 | 　      7.48 |           0 |   12721875000 | 　　　　　　　           0 | 　　　　　　　    78125000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 628380ns · 평가 반복문 합 12858534060ns · 평가 1회당 워커 CPU 14879ns
+   [N=200 스레드 12 분할 8 워커별 CPU 장부] 활동 워커 12개, CPU 합 12312500000ns
+      ForkJoinPool-184-worker-8       1578125000 ns  (12.8%)
+      ForkJoinPool-184-worker-1       1546875000 ns  (12.6%)
+      ForkJoinPool-184-worker-3       1546875000 ns  (12.6%)
+      ForkJoinPool-184-worker-4       1546875000 ns  (12.6%)
+      ForkJoinPool-184-worker-7       1531250000 ns  (12.4%)
+      ForkJoinPool-184-worker-11      1515625000 ns  (12.3%)
+      ForkJoinPool-184-worker-2       1500000000 ns  (12.2%)
+      ForkJoinPool-184-worker-12      1484375000 ns  (12.1%)
+      ForkJoinPool-184-worker-5         31250000 ns  ( 0.3%)
+      ForkJoinPool-184-worker-6         31250000 ns  ( 0.3%)
+      ForkJoinPool-184-worker-9                0 ns  ( 0.0%)
+      ForkJoinPool-184-worker-10               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　    9 |  1619177120 | 　     2.52 |  13553125000 | 　      8.37 |     3125000 |   13468750000 | 　　　　　　　           0 | 　　　　　　　    78125000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 616440ns · 평가 반복문 합 13774534000ns · 평가 1회당 워커 CPU 15753ns
+   [N=200 스레드 12 분할 9 워커별 CPU 장부] 활동 워커 12개, CPU 합 13515625000ns
+      ForkJoinPool-192-worker-2       1562500000 ns  (11.6%)
+      ForkJoinPool-192-worker-1       1515625000 ns  (11.2%)
+      ForkJoinPool-192-worker-3       1515625000 ns  (11.2%)
+      ForkJoinPool-192-worker-4       1500000000 ns  (11.1%)
+      ForkJoinPool-192-worker-8       1500000000 ns  (11.1%)
+      ForkJoinPool-192-worker-6       1468750000 ns  (10.9%)
+      ForkJoinPool-192-worker-7       1468750000 ns  (10.9%)
+      ForkJoinPool-192-worker-10      1468750000 ns  (10.9%)
+      ForkJoinPool-192-worker-11      1453125000 ns  (10.8%)
+      ForkJoinPool-192-worker-5         31250000 ns  ( 0.2%)
+      ForkJoinPool-192-worker-9         31250000 ns  ( 0.2%)
+      ForkJoinPool-192-worker-12               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   10 |  1535951560 | 　     2.66 |  14218750000 | 　      9.26 |           0 |   14140625000 | 　　　　　　　           0 | 　　　　　　　    78125000 |     18
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 576780ns · 평가 반복문 합 14645972140ns · 평가 1회당 워커 CPU 16539ns
+   [N=200 스레드 12 분할 10 워커별 CPU 장부] 활동 워커 12개, CPU 합 14093750000ns
+      ForkJoinPool-200-worker-10      1468750000 ns  (10.4%)
+      ForkJoinPool-200-worker-6       1453125000 ns  (10.3%)
+      ForkJoinPool-200-worker-8       1437500000 ns  (10.2%)
+      ForkJoinPool-200-worker-2       1421875000 ns  (10.1%)
+      ForkJoinPool-200-worker-12      1421875000 ns  (10.1%)
+      ForkJoinPool-200-worker-4       1406250000 ns  (10.0%)
+      ForkJoinPool-200-worker-3       1390625000 ns  ( 9.9%)
+      ForkJoinPool-200-worker-5       1390625000 ns  ( 9.9%)
+      ForkJoinPool-200-worker-7       1375000000 ns  ( 9.8%)
+      ForkJoinPool-200-worker-1       1296875000 ns  ( 9.2%)
+      ForkJoinPool-200-worker-9         31250000 ns  ( 0.2%)
+      ForkJoinPool-200-worker-11               0 ns  ( 0.0%)
+      최대/최소 = Infinity배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   11 |  1514501760 | 　     2.70 |  14640625000 | 　      9.67 |     3125000 |   14525000000 | 　　　　　　　           0 | 　　　　　　　   112500000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 681680ns · 평가 반복문 합 15421609380ns · 평가 1회당 워커 CPU 16988ns
+   [N=200 스레드 12 분할 11 워커별 CPU 장부] 활동 워커 12개, CPU 합 14937500000ns
+      ForkJoinPool-208-worker-10      1406250000 ns  ( 9.4%)
+      ForkJoinPool-208-worker-4       1375000000 ns  ( 9.2%)
+      ForkJoinPool-208-worker-8       1375000000 ns  ( 9.2%)
+      ForkJoinPool-208-worker-12      1375000000 ns  ( 9.2%)
+      ForkJoinPool-208-worker-1       1359375000 ns  ( 9.1%)
+      ForkJoinPool-208-worker-5       1343750000 ns  ( 9.0%)
+      ForkJoinPool-208-worker-7       1343750000 ns  ( 9.0%)
+      ForkJoinPool-208-worker-9       1343750000 ns  ( 9.0%)
+      ForkJoinPool-208-worker-3       1328125000 ns  ( 8.9%)
+      ForkJoinPool-208-worker-2       1312500000 ns  ( 8.8%)
+      ForkJoinPool-208-worker-6       1234375000 ns  ( 8.3%)
+      ForkJoinPool-208-worker-11       140625000 ns  ( 0.9%)
+      최대/최소 = 10.00배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   12 |  1523738340 | 　     2.68 |  14765625000 | 　      9.69 |           0 |   14706250000 | 　　　　　　　           0 | 　　　　　　　    56250000 |     19
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 14419100ns · 평가 반복문 합 15930163660ns · 평가 1회당 워커 CPU 17200ns
+   [N=200 스레드 12 분할 12 워커별 CPU 장부] 활동 워커 12개, CPU 합 14046875000ns
+      ForkJoinPool-216-worker-10      1218750000 ns  ( 8.7%)
+      ForkJoinPool-216-worker-11      1218750000 ns  ( 8.7%)
+      ForkJoinPool-216-worker-4       1203125000 ns  ( 8.6%)
+      ForkJoinPool-216-worker-12      1203125000 ns  ( 8.6%)
+      ForkJoinPool-216-worker-3       1187500000 ns  ( 8.5%)
+      ForkJoinPool-216-worker-2       1171875000 ns  ( 8.3%)
+      ForkJoinPool-216-worker-5       1171875000 ns  ( 8.3%)
+      ForkJoinPool-216-worker-6       1171875000 ns  ( 8.3%)
+      ForkJoinPool-216-worker-1       1140625000 ns  ( 8.1%)
+      ForkJoinPool-216-worker-8       1140625000 ns  ( 8.1%)
+      ForkJoinPool-216-worker-7       1125000000 ns  ( 8.0%)
+      ForkJoinPool-216-worker-9       1093750000 ns  ( 7.8%)
+      최대/최소 = 1.11배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   18 |  1576895460 | 　     2.59 |  13871875000 | 　      8.80 |           0 |   13756250000 | 　　　　　　　           0 | 　　　　　　　   112500000 |     20
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 3240120ns · 평가 반복문 합 14878767500ns · 평가 1회당 워커 CPU 16089ns
+   [N=200 스레드 12 분할 18 워커별 CPU 장부] 활동 워커 12개, CPU 합 13515625000ns
+      ForkJoinPool-224-worker-10      1234375000 ns  ( 9.1%)
+      ForkJoinPool-224-worker-8       1187500000 ns  ( 8.8%)
+      ForkJoinPool-224-worker-2       1140625000 ns  ( 8.4%)
+      ForkJoinPool-224-worker-4       1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-5       1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-6       1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-9       1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-11      1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-12      1125000000 ns  ( 8.3%)
+      ForkJoinPool-224-worker-1       1109375000 ns  ( 8.2%)
+      ForkJoinPool-224-worker-3       1062500000 ns  ( 7.9%)
+      ForkJoinPool-224-worker-7       1031250000 ns  ( 7.6%)
+      최대/최소 = 1.20배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   24 |  1566400520 | 　     2.61 |  14206250000 | 　      9.07 |     3125000 |   14021875000 | 　　　　　　　           0 | 　　　　　　　   181250000 |     20
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 3018500ns · 평가 반복문 합 15266027100ns · 평가 1회당 워커 CPU 16400ns
+   [N=200 스레드 12 분할 24 워커별 CPU 장부] 활동 워커 12개, CPU 합 14468750000ns
+      ForkJoinPool-232-worker-1       1281250000 ns  ( 8.9%)
+      ForkJoinPool-232-worker-5       1281250000 ns  ( 8.9%)
+      ForkJoinPool-232-worker-3       1265625000 ns  ( 8.7%)
+      ForkJoinPool-232-worker-9       1250000000 ns  ( 8.6%)
+      ForkJoinPool-232-worker-7       1234375000 ns  ( 8.5%)
+      ForkJoinPool-232-worker-11      1203125000 ns  ( 8.3%)
+      ForkJoinPool-232-worker-2       1171875000 ns  ( 8.1%)
+      ForkJoinPool-232-worker-6       1171875000 ns  ( 8.1%)
+      ForkJoinPool-232-worker-12      1171875000 ns  ( 8.1%)
+      ForkJoinPool-232-worker-4       1156250000 ns  ( 8.0%)
+      ForkJoinPool-232-worker-8       1140625000 ns  ( 7.9%)
+      ForkJoinPool-232-worker-10      1140625000 ns  ( 7.9%)
+      최대/최소 = 1.12배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+　 200 | 　　　　　  10 | 병렬 | 　　　　 12 | 　　　　　　　   36 |  1528202520 | 　     2.67 |  14268750000 | 　      9.34 |           0 |   14200000000 | 　　　　　　　           0 | 　　　　　　　    68750000 |     21
+   [계측] 평가 855000회 · 통과 352485회 · 복사 합 3205600ns · 평가 반복문 합 15562798000ns · 평가 1회당 워커 CPU 16608ns
+   [N=200 스레드 12 분할 36 워커별 CPU 장부] 활동 워커 12개, CPU 합 14171875000ns
+      ForkJoinPool-240-worker-1       1250000000 ns  ( 8.8%)
+      ForkJoinPool-240-worker-3       1234375000 ns  ( 8.7%)
+      ForkJoinPool-240-worker-4       1234375000 ns  ( 8.7%)
+      ForkJoinPool-240-worker-5       1234375000 ns  ( 8.7%)
+      ForkJoinPool-240-worker-6       1187500000 ns  ( 8.4%)
+      ForkJoinPool-240-worker-7       1187500000 ns  ( 8.4%)
+      ForkJoinPool-240-worker-8       1187500000 ns  ( 8.4%)
+      ForkJoinPool-240-worker-9       1171875000 ns  ( 8.3%)
+      ForkJoinPool-240-worker-12      1156250000 ns  ( 8.2%)
+      ForkJoinPool-240-worker-11      1125000000 ns  ( 7.9%)
+      ForkJoinPool-240-worker-2       1109375000 ns  ( 7.8%)
+      ForkJoinPool-240-worker-10      1093750000 ns  ( 7.7%)
+      최대/최소 = 1.14배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+[기타 자바 스레드 목록] main도 ForkJoinPool 워커도 아닌 Java 스레드. 이번 실행의 모든 측정을 합쳤다.
+  CPU 증가분을 보인 기타 자바 스레드가 없었다.
+BUILD SUCCESSFUL in 8m 55s
+4 actionable tasks: 2 executed, 2 up-to-date
+오후 5:42:39: Execution finished ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'.

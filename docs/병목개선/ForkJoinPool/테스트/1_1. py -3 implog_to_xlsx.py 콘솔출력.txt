@@ -1,0 +1,4 @@
+py -3 1.implog_to_xlsx.py "콘솔출력.txt"
+py -3 1.implog_to_xlsx.py "콘솔출력.txt" -o "원하는경로\결과.xlsx"
+
+py -3 1.implog_to_xlsx.py "implog_to_xlsx_원본데이터_테스트_1_20260731_1342.txt"
