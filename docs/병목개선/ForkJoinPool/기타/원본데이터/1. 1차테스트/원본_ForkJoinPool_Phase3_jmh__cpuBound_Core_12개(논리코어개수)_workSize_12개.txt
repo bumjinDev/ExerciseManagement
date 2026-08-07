@@ -1,0 +1,603 @@
+PS E:\devSpace\SpringBootProjects\ExerciseManagement> .\gradlew.bat jmh
+Starting a Gradle Daemon, 2 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+> Task :jmhRunBytecodeGenerator
+Processing 3 classes from E:\devSpace\SpringBootProjects\ExerciseManagement\build\classes\java\jmh with "reflection" generator
+Writing out Java source to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-sources and resources to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-resources
+Processing 9 classes from E:\devSpace\SpringBootProjects\ExerciseManagement\build\classes\java\test with "reflection" generator
+Writing out Java source to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-sources and resources to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-resources
+
+> Task :jmh
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 20)
+
+# Run progress: 0.00% complete, ETA 00:08:00
+# Fork: 1 of 2
+# Warmup Iteration   1: 0.290 ms/op
+# Warmup Iteration   2: 0.287 ms/op
+# Warmup Iteration   3: 0.300 ms/op
+# Warmup Iteration   4: 0.311 ms/op
+# Warmup Iteration   5: 0.329 ms/op
+Iteration   1: 0.317 ms/opING [24s]
+Iteration   2: 0.315 ms/opING [27s]
+Iteration   3: 0.311 ms/opING [30s]
+Iteration   4: 0.311 ms/opING [33s]
+Iteration   5: 0.304 ms/opING [36s]
+
+# Run progress: 4.17% complete, ETA 00:07:52
+# Fork: 2 of 2
+# Warmup Iteration   1: 0.287 ms/op
+# Warmup Iteration   2: 0.276 ms/op
+# Warmup Iteration   3: 0.286 ms/op
+# Warmup Iteration   4: 0.306 ms/op
+# Warmup Iteration   5: 0.307 ms/op
+Iteration   1: 0.326 ms/opING [44s]
+Iteration   2: 0.323 ms/opING [47s]
+Iteration   3: 0.315 ms/opING [50s]
+Iteration   4: 0.316 ms/opING [53s]
+Iteration   5: 0.313 ms/opING [56s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  0.315 ±(99.9%) 0.009 ms/op [Average]
+  (min, avg, max) = (0.304, 0.315, 0.326), stdev = 0.006
+  CI (99.9%): [0.306, 0.324] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 40)
+
+# Run progress: 8.33% complete, ETA 00:07:31
+# Fork: 1 of 2
+# Warmup Iteration   1: 2.220 ms/op
+# Warmup Iteration   2: 2.508 ms/ops]
+# Warmup Iteration   3: 2.449 ms/ops]
+# Warmup Iteration   4: 2.640 ms/ops]
+# Warmup Iteration   5: 2.641 ms/ops]
+Iteration   1: 2.636 ms/opING [1m 5s]
+Iteration   2: 2.667 ms/opING [1m 8s]
+Iteration   3: 2.646 ms/opING [1m 11s]
+Iteration   4: 2.643 ms/opING [1m 14s]
+Iteration   5: 2.658 ms/opING [1m 17s]
+
+# Run progress: 12.50% complete, ETA 00:07:10
+# Fork: 2 of 2
+# Warmup Iteration   1: 2.296 ms/op0s]
+# Warmup Iteration   2: 2.538 ms/op1s]
+# Warmup Iteration   3: 2.468 ms/op2s]
+# Warmup Iteration   4: 2.790 ms/op3s]
+# Warmup Iteration   5: 2.657 ms/op4s]
+Iteration   1: 2.707 ms/opING [1m 25s]
+Iteration   2: 2.713 ms/opING [1m 28s]
+Iteration   3: 2.702 ms/opING [1m 31s]
+Iteration   4: 2.747 ms/opING [1m 34s]
+Iteration   5: 2.648 ms/opING [1m 37s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  2.677 ±(99.9%) 0.057 ms/op [Average]
+  (min, avg, max) = (2.636, 2.677, 2.747), stdev = 0.038
+  CI (99.9%): [2.620, 2.734] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 60)
+
+# Run progress: 16.67% complete, ETA 00:06:50
+# Fork: 1 of 2
+# Warmup Iteration   1: 8.533 ms/op1s]
+# Warmup Iteration   2: 11.594 ms/ops]
+# Warmup Iteration   3: 11.137 ms/ops]
+# Warmup Iteration   4: 11.478 ms/ops]
+# Warmup Iteration   5: 11.487 ms/ops]
+Iteration   1: 11.434 ms/opNG [1m 46s]
+Iteration   2: 11.353 ms/opNG [1m 49s]
+Iteration   3: 11.324 ms/opNG [1m 52s]
+Iteration   4: 11.355 ms/opNG [1m 55s]
+Iteration   5: 11.104 ms/opNG [1m 58s]
+
+# Run progress: 20.83% complete, ETA 00:06:29
+# Fork: 2 of 2
+# Warmup Iteration   1: 8.063 ms/ops]
+# Warmup Iteration   2: 11.062 ms/op]
+# Warmup Iteration   3: 10.827 ms/op]
+# Warmup Iteration   4: 11.000 ms/op]
+# Warmup Iteration   5: 11.253 ms/op]
+Iteration   1: 11.270 ms/opNG [2m 6s]
+Iteration   2: 11.197 ms/opNG [2m 9s]
+Iteration   3: 11.155 ms/opNG [2m 12s]
+Iteration   4: 11.203 ms/opNG [2m 15s]
+Iteration   5: 11.120 ms/opNG [2m 18s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  11.252 ±(99.9%) 0.170 ms/op [Average]
+  (min, avg, max) = (11.104, 11.252, 11.434), stdev = 0.112
+  CI (99.9%): [11.082, 11.421] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 120)
+
+# Run progress: 25.00% complete, ETA 00:06:09
+# Fork: 1 of 2
+# Warmup Iteration   1: 150.695 ms/op]
+# Warmup Iteration   2: 244.798 ms/op]
+# Warmup Iteration   3: 239.456 ms/op]
+# Warmup Iteration   4: 239.853 ms/op]
+# Warmup Iteration   5: 240.576 ms/op]
+Iteration   1: 238.966 ms/opG [2m 28s]
+Iteration   2: 239.498 ms/opG [2m 31s]
+Iteration   3: 235.968 ms/opG [2m 34s]
+Iteration   4: 239.528 ms/opG [2m 37s]
+Iteration   5: 239.328 ms/opG [2m 40s]
+
+# Run progress: 29.17% complete, ETA 00:05:52
+# Fork: 2 of 2
+# Warmup Iteration   1: 149.262 ms/op]
+# Warmup Iteration   2: 189.231 ms/op]
+# Warmup Iteration   3: 182.573 ms/op]
+# Warmup Iteration   4: 183.313 ms/op]
+# Warmup Iteration   5: 182.235 ms/op]
+Iteration   1: 183.243 ms/opG [2m 49s]
+Iteration   2: 182.884 ms/opG [2m 52s]
+Iteration   3: 182.868 ms/opG [2m 55s]
+Iteration   4: 182.505 ms/opG [2m 58s]
+Iteration   5: 182.757 ms/opG [3m 1s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  210.754 ±(99.9%) 44.495 ms/op [Average]
+  (min, avg, max) = (182.505, 210.754, 239.528), stdev = 29.430
+  CI (99.9%): [166.260, 255.249] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 200)
+
+# Run progress: 33.33% complete, ETA 00:05:32
+# Fork: 1 of 2
+# Warmup Iteration   1: 853.657 ms/op
+# Warmup Iteration   2: 1432.403 ms/op
+# Warmup Iteration   3: 1450.722 ms/op
+# Warmup Iteration   4: 1446.532 ms/op
+# Warmup Iteration   5: 1437.065 ms/op
+Iteration   1: 1445.036 ms/op [3m 12s]
+Iteration   2: 1437.065 ms/op [3m 17s]
+Iteration   3: 1441.796 ms/op [3m 21s]
+Iteration   4: 1440.568 ms/op [3m 25s]
+Iteration   5: 1437.088 ms/op [3m 30s]
+
+# Run progress: 37.50% complete, ETA 00:05:26
+# Fork: 2 of 2
+# Warmup Iteration   1: 843.254 ms/op]
+# Warmup Iteration   2: 1580.441 ms/op
+# Warmup Iteration   3: 1550.782 ms/op
+# Warmup Iteration   4: 1555.197 ms/op
+# Warmup Iteration   5: 1552.698 ms/op
+Iteration   1: 1557.523 ms/op [3m 42s]
+Iteration   2: 1553.187 ms/op [3m 45s]
+Iteration   3: 1553.022 ms/op [3m 49s]
+Iteration   4: 1545.781 ms/op [3m 52s]
+Iteration   5: 1551.911 ms/op [3m 55s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  1496.298 ±(99.9%) 89.389 ms/op [Average]
+  (min, avg, max) = (1437.065, 1496.298, 1557.523), stdev = 59.125
+  CI (99.9%): [1406.909, 1585.687] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.parallel
+# Parameters: (memberCount = 300)
+
+# Run progress: 41.67% complete, ETA 00:05:07
+# Fork: 1 of 2
+# Warmup Iteration   1: 5376.401 ms/op
+# Warmup Iteration   2: 10566.525 ms/op
+# Warmup Iteration   3: 10709.930 ms/op
+# Warmup Iteration   4: 10869.717 ms/op
+# Warmup Iteration   5: 10833.783 ms/op
+Iteration   1: 10781.090 ms/op[4m 47s]
+Iteration   2: 10740.749 ms/op[4m 57s]
+Iteration   3: 10784.621 ms/op[5m 8s]
+Iteration   4: 10813.515 ms/op[5m 19s]
+Iteration   5: 10799.151 ms/op[5m 30s]
+
+# Run progress: 45.83% complete, ETA 00:06:21
+# Fork: 2 of 2
+# Warmup Iteration   1: 5325.831 ms/op
+# Warmup Iteration   2: 10455.676 ms/op
+# Warmup Iteration   3: 10446.675 ms/op
+# Warmup Iteration   4: 10455.850 ms/op
+# Warmup Iteration   5: 10467.509 ms/op
+Iteration   1: 10436.721 ms/op[6m 28s]
+Iteration   2: 10432.885 ms/op[6m 39s]
+Iteration   3: 10401.910 ms/op[6m 49s]
+Iteration   4: 10460.495 ms/op[6m 59s]
+Iteration   5: 10450.344 ms/op[7m 10s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.parallel":
+  10610.148 ±(99.9%) 279.043 ms/op [Average]
+  (min, avg, max) = (10401.910, 10610.148, 10813.515), stdev = 184.570
+  CI (99.9%): [10331.105, 10889.191] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 20)
+
+# Run progress: 50.00% complete, ETA 00:07:02
+# Fork: 1 of 2
+# Warmup Iteration   1: 0.085 ms/op1s]
+# Warmup Iteration   2: 0.092 ms/op2s]
+# Warmup Iteration   3: 0.092 ms/op3s]
+# Warmup Iteration   4: 0.089 ms/op4s]
+# Warmup Iteration   5: 0.090 ms/op5s]
+Iteration   1: 0.090 ms/opING [7m 26s]
+Iteration   2: 0.090 ms/opING [7m 29s]
+Iteration   3: 0.089 ms/opING [7m 32s]
+Iteration   4: 0.090 ms/opING [7m 35s]
+Iteration   5: 0.090 ms/opING [7m 38s]
+
+# Run progress: 54.17% complete, ETA 00:06:14
+# Fork: 2 of 2
+# Warmup Iteration   1: 0.083 ms/op1s]
+# Warmup Iteration   2: 0.091 ms/op2s]
+# Warmup Iteration   3: 0.088 ms/op3s]
+# Warmup Iteration   4: 0.089 ms/op4s]
+# Warmup Iteration   5: 0.092 ms/op5s]
+Iteration   1: 0.090 ms/opING [7m 46s]
+Iteration   2: 0.090 ms/opING [7m 49s]
+Iteration   3: 0.090 ms/opING [7m 52s]
+Iteration   4: 0.090 ms/opING [7m 55s]
+Iteration   5: 0.090 ms/opING [7m 58s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  0.090 ±(99.9%) 0.001 ms/op [Average]
+  (min, avg, max) = (0.089, 0.090, 0.090), stdev = 0.001
+  CI (99.9%): [0.089, 0.090] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 40)
+
+# Run progress: 58.33% complete, ETA 00:05:30
+# Fork: 1 of 2
+# Warmup Iteration   1: 2.870 ms/ops]
+# Warmup Iteration   2: 3.131 ms/ops]
+# Warmup Iteration   3: 3.078 ms/ops]
+# Warmup Iteration   4: 3.117 ms/ops]
+# Warmup Iteration   5: 3.087 ms/ops]
+Iteration   1: 3.088 ms/opING [8m 7s]
+Iteration   2: 3.112 ms/opING [8m 10s]
+Iteration   3: 3.109 ms/opING [8m 13s]
+Iteration   4: 3.059 ms/opING [8m 16s]
+Iteration   5: 2.995 ms/opING [8m 19s]
+
+# Run progress: 62.50% complete, ETA 00:04:50
+# Fork: 2 of 2
+# Warmup Iteration   1: 2.843 ms/op2s]
+# Warmup Iteration   2: 3.044 ms/op3s]
+# Warmup Iteration   3: 2.967 ms/op4s]
+# Warmup Iteration   4: 3.025 ms/op5s]
+# Warmup Iteration   5: 3.001 ms/op6s]
+Iteration   1: 3.034 ms/opING [8m 27s]
+Iteration   2: 3.045 ms/opING [8m 30s]
+Iteration   3: 3.043 ms/opING [8m 33s]
+Iteration   4: 3.145 ms/opING [8m 36s]
+Iteration   5: 3.254 ms/opING [8m 39s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  3.088 ±(99.9%) 0.111 ms/op [Average]
+  (min, avg, max) = (2.995, 3.088, 3.254), stdev = 0.073
+  CI (99.9%): [2.978, 3.199] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 60)
+
+# Run progress: 66.67% complete, ETA 00:04:12
+# Fork: 1 of 2
+# Warmup Iteration   1: 23.596 ms/ops]
+# Warmup Iteration   2: 25.591 ms/ops]
+# Warmup Iteration   3: 25.243 ms/ops]
+# Warmup Iteration   4: 26.783 ms/ops]
+# Warmup Iteration   5: 25.785 ms/ops]
+Iteration   1: 25.369 ms/opNG [8m 48s]
+Iteration   2: 25.297 ms/opNG [8m 51s]
+Iteration   3: 25.580 ms/opNG [8m 54s]
+Iteration   4: 25.249 ms/opNG [8m 57s]
+Iteration   5: 25.476 ms/opNG [9m]
+
+# Run progress: 70.83% complete, ETA 00:03:36
+# Fork: 2 of 2
+# Warmup Iteration   1: 24.223 ms/op]
+# Warmup Iteration   2: 26.449 ms/op]
+# Warmup Iteration   3: 25.126 ms/op]
+# Warmup Iteration   4: 25.852 ms/op]
+# Warmup Iteration   5: 25.457 ms/op]
+Iteration   1: 25.372 ms/opNG [9m 8s]
+Iteration   2: 25.354 ms/opNG [9m 11s]
+Iteration   3: 25.415 ms/opNG [9m 14s]
+Iteration   4: 25.410 ms/opNG [9m 18s]
+Iteration   5: 25.385 ms/opNG [9m 21s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  25.391 ±(99.9%) 0.138 ms/op [Average]
+  (min, avg, max) = (25.249, 25.391, 25.580), stdev = 0.091
+  CI (99.9%): [25.252, 25.529] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 120)
+
+# Run progress: 75.00% complete, ETA 00:03:01
+# Fork: 1 of 2
+# Warmup Iteration   1: 607.792 ms/op]
+# Warmup Iteration   2: 654.907 ms/op]
+# Warmup Iteration   3: 646.670 ms/op]
+# Warmup Iteration   4: 645.697 ms/op]
+# Warmup Iteration   5: 645.536 ms/op]
+Iteration   1: 670.117 ms/opG [9m 30s]
+Iteration   2: 645.961 ms/opG [9m 34s]
+Iteration   3: 646.486 ms/opG [9m 37s]
+Iteration   4: 665.699 ms/opG [9m 40s]
+Iteration   5: 654.717 ms/opG [9m 43s]
+
+# Run progress: 79.17% complete, ETA 00:02:29
+# Fork: 2 of 2
+# Warmup Iteration   1: 581.202 ms/op]
+# Warmup Iteration   2: 655.046 ms/op]
+# Warmup Iteration   3: 639.828 ms/op]
+# Warmup Iteration   4: 646.253 ms/op]
+# Warmup Iteration   5: 647.295 ms/op]
+Iteration   1: 645.877 ms/opG [9m 53s]
+Iteration   2: 648.805 ms/opG [9m 57s]
+Iteration   3: 643.793 ms/opG [10m]
+Iteration   4: 645.504 ms/opG [10m 3s]
+Iteration   5: 647.616 ms/opG [10m 6s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  651.458 ±(99.9%) 13.927 ms/op [Average]
+  (min, avg, max) = (643.793, 651.458, 670.117), stdev = 9.212
+  CI (99.9%): [637.531, 665.384] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 200)
+
+# Run progress: 83.33% complete, ETA 00:01:58
+# Fork: 1 of 2
+# Warmup Iteration   1: 3367.778 ms/op]
+# Warmup Iteration   2: 3633.294 ms/op]
+# Warmup Iteration   3: 3644.916 ms/op]
+# Warmup Iteration   4: 3618.998 ms/op]
+# Warmup Iteration   5: 3946.660 ms/op]
+Iteration   1: 3594.738 ms/op [10m 28s]
+Iteration   2: 3567.312 ms/op [10m 32s]
+Iteration   3: 3593.608 ms/op [10m 35s]
+Iteration   4: 3592.143 ms/op [10m 39s]
+Iteration   5: 3573.481 ms/op [10m 43s]
+
+# Run progress: 87.50% complete, ETA 00:01:29
+# Fork: 2 of 2
+# Warmup Iteration   1: 3455.924 ms/op]
+# Warmup Iteration   2: 3705.841 ms/op]
+# Warmup Iteration   3: 3673.198 ms/op]
+# Warmup Iteration   4: 3677.294 ms/op]
+# Warmup Iteration   5: 3651.525 ms/op
+Iteration   1: 3650.415 ms/op [11m 5s]
+Iteration   2: 3658.188 ms/op [11m 8s]
+Iteration   3: 3654.695 ms/op [11m 12s]
+Iteration   4: 3691.836 ms/op [11m 16s]
+Iteration   5: 3708.560 ms/op [11m 19s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  3628.497 ±(99.9%) 76.294 ms/op [Average]
+  (min, avg, max) = (3567.312, 3628.497, 3708.560), stdev = 50.464
+  CI (99.9%): [3552.204, 3704.791] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 3 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.ImproveBench.sequential
+# Parameters: (memberCount = 300)
+
+# Run progress: 91.67% complete, ETA 00:01:00
+# Fork: 1 of 2
+# Warmup Iteration   1: 22762.321 ms/op
+# Warmup Iteration   2: 24477.072 ms/op
+# Warmup Iteration   3: 24567.667 ms/op
+# Warmup Iteration   4: 24504.482 ms/op
+# Warmup Iteration   5: 24500.361 ms/op
+Iteration   1: 24531.351 ms/op[13m 24s]
+Iteration   2: 24440.470 ms/op[13m 49s]
+Iteration   3: 24508.638 ms/op[14m 13s]
+Iteration   4: 24904.124 ms/op[14m 38s]
+Iteration   5: 24821.807 ms/op[15m 3s]
+
+# Run progress: 95.83% complete, ETA 00:00:39
+# Fork: 2 of 2
+# Warmup Iteration   1: 23416.779 ms/op
+# Warmup Iteration   2: 26749.194 ms/op
+# Warmup Iteration   3: 26603.438 ms/op
+# Warmup Iteration   4: 26857.166 ms/op
+# Warmup Iteration   5: 26650.826 ms/op
+Iteration   1: 26924.915 ms/op[17m 38s]
+Iteration   2: 26564.356 ms/op[18m 5s]
+Iteration   3: 26716.306 ms/op[18m 32s]
+Iteration   4: 26791.213 ms/op[18m 58s]
+Iteration   5: 27071.367 ms/op[19m 25s]
+
+
+Result "com.exercisemanagement.challenge.service.ImproveBench.sequential":
+  25727.455 ±(99.9%) 1754.479 ms/op [Average]
+  (min, avg, max) = (24440.470, 25727.455, 27071.367), stdev = 1160.479
+  CI (99.9%): [23972.976, 27481.933] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:19:34
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark                (memberCount)  Mode  Cnt      Score      Error  Units
+ImproveBench.parallel               20  avgt   10      0.315 ±    0.009  ms/op
+ImproveBench.parallel               40  avgt   10      2.677 ±    0.057  ms/op
+ImproveBench.parallel               60  avgt   10     11.252 ±    0.170  ms/op
+ImproveBench.parallel              120  avgt   10    210.754 ±   44.495  ms/op
+ImproveBench.parallel              200  avgt   10   1496.298 ±   89.389  ms/op
+ImproveBench.parallel              300  avgt   10  10610.148 ±  279.043  ms/op
+ImproveBench.sequential             20  avgt   10      0.090 ±    0.001  ms/op
+ImproveBench.sequential             40  avgt   10      3.088 ±    0.111  ms/op
+ImproveBench.sequential             60  avgt   10     25.391 ±    0.138  ms/op
+ImproveBench.sequential            120  avgt   10    651.458 ±   13.927  ms/op
+ImproveBench.sequential            200  avgt   10   3628.497 ±   76.294  ms/op
+ImproveBench.sequential            300  avgt   10  25727.455 ± 1754.479  ms/op
+
+Benchmark result is saved to E:\devSpace\SpringBootProjects\ExerciseManagement\build\results\jmh\results.txt
+
+[Incubating] Problems report is available at: file:///E:/devSpace/SpringBootProjects/ExerciseManagement/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 19m 55s
+8 actionable tasks: 7 executed, 1 up-to-date
+PS E:\devSpace\SpringBootProjects\ExerciseManagement>
