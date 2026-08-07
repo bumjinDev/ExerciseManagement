@@ -1,0 +1,53 @@
+오후 7:35:22: Executing ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'…
+
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+
+> Task :com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()
+=== improve() CPU 점유 측정판 (A층-3.3 평균코어 + 3.2 워커장부 · 진단용) ===
+availableProcessors()=12 (논리). 이 기계: 물리 6 / 논리 12. improve()는 이 값을 풀 병렬도로 쓴다.
+프로세스 CPU 타이머: 지원
+고정 입력: 정원 10 · 시드 42 · 허용폭 10% · 시작=greedy   |   워밍업 2 · 측정 5회 평균
+측정 N: 120 200 
+(워커별 장부를 보려면 엔진 596행 pool.shutdown()을 주석 처리 후 실행. 안 하면 그 절만 건너뜀)
+
+[열 설명]
+  elapsed  : 메소드 전체 수행 시간(평균, ms)
+  procCPU  : 프로세스 전체 CPU 시간(평균, ms) = 코어들이 일한 시간의 총합
+  busyCore : 평균 바쁜 코어 수 = procCPU ÷ elapsed (상한 논리 12 / 물리 6)
+  mainCPU  : main 스레드 CPU 시간(직렬 구간 근사, ms)
+  speedup  : 순차 elapsed ÷ 병렬 elapsed (순차 행은 '-')
+  구현     : 순차 = 대조군, 병렬 = 측정 대상
+
+N     구현          elapsed      procCPU   busyCore      mainCPU  speedup
+--------------------------------------------------------------------------
+120   순차           551.99       559.38       1.01       550.00        -
+120   병렬           148.43       737.50       4.97         0.00     3.72
+   [N=120 병렬 워커별 CPU 장부] 활동 워커 6개, CPU 합 750.0ms
+      ForkJoinPool-8-worker-6        140.63 ms  (18.8%)
+      ForkJoinPool-8-worker-1        125.00 ms  (16.7%)
+      ForkJoinPool-8-worker-2        125.00 ms  (16.7%)
+      ForkJoinPool-8-worker-3        125.00 ms  (16.7%)
+      ForkJoinPool-8-worker-5        125.00 ms  (16.7%)
+      ForkJoinPool-8-worker-4        109.38 ms  (14.6%)
+      최대/최소 = 1.29배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+
+200   순차          3283.71      3293.75       1.00      3243.75        -
+200   병렬           808.01      4403.13       5.45         3.13     4.06
+   [N=200 병렬 워커별 CPU 장부] 활동 워커 6개, CPU 합 4234.4ms
+      ForkJoinPool-16-worker-1       734.38 ms  (17.3%)
+      ForkJoinPool-16-worker-2       718.75 ms  (17.0%)
+      ForkJoinPool-16-worker-3       718.75 ms  (17.0%)
+      ForkJoinPool-16-worker-6       718.75 ms  (17.0%)
+      ForkJoinPool-16-worker-4       671.88 ms  (15.9%)
+      ForkJoinPool-16-worker-5       671.88 ms  (15.9%)
+      최대/최소 = 1.09배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+
+
+BUILD SUCCESSFUL in 35s
+4 actionable tasks: 1 executed, 3 up-to-date
+오후 7:35:58: Execution finished ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'.

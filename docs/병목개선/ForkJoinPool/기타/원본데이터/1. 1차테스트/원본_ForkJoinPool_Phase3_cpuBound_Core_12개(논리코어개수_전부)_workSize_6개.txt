@@ -1,0 +1,65 @@
+오후 7:49:46: Executing ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'…
+
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+
+> Task :com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()
+=== improve() CPU 점유 측정판 (A층-3.3 평균코어 + 3.2 워커장부 · 진단용) ===
+availableProcessors()=12 (논리). 이 기계: 물리 6 / 논리 12. improve()는 이 값을 풀 병렬도로 쓴다.
+프로세스 CPU 타이머: 지원
+고정 입력: 정원 10 · 시드 42 · 허용폭 10% · 시작=greedy   |   워밍업 2 · 측정 5회 평균
+측정 N: 120 200 
+(워커별 장부를 보려면 엔진 596행 pool.shutdown()을 주석 처리 후 실행. 안 하면 그 절만 건너뜀)
+
+[열 설명]
+  elapsed  : 메소드 전체 수행 시간(평균, ms)
+  procCPU  : 프로세스 전체 CPU 시간(평균, ms) = 코어들이 일한 시간의 총합
+  busyCore : 평균 바쁜 코어 수 = procCPU ÷ elapsed (상한 논리 12 / 물리 6)
+  mainCPU  : main 스레드 CPU 시간(직렬 구간 근사, ms)
+  speedup  : 순차 elapsed ÷ 병렬 elapsed (순차 행은 '-')
+  구현     : 순차 = 대조군, 병렬 = 측정 대상
+
+N     구현          elapsed      procCPU   busyCore      mainCPU  speedup
+--------------------------------------------------------------------------
+120   순차           574.15       581.25       1.01       559.38        -
+120   병렬           183.60      1056.25       5.75         0.00     3.13
+   [N=120 병렬 워커별 CPU 장부] 활동 워커 12개, CPU 합 1156.3ms
+      ForkJoinPool-8-worker-4        125.00 ms  (10.8%)
+      ForkJoinPool-8-worker-5        125.00 ms  (10.8%)
+      ForkJoinPool-8-worker-10       125.00 ms  (10.8%)
+      ForkJoinPool-8-worker-3        109.38 ms  ( 9.5%)
+      ForkJoinPool-8-worker-7        109.38 ms  ( 9.5%)
+      ForkJoinPool-8-worker-11       109.38 ms  ( 9.5%)
+      ForkJoinPool-8-worker-12       109.38 ms  ( 9.5%)
+      ForkJoinPool-8-worker-1         93.75 ms  ( 8.1%)
+      ForkJoinPool-8-worker-9         78.13 ms  ( 6.8%)
+      ForkJoinPool-8-worker-2         62.50 ms  ( 5.4%)
+      ForkJoinPool-8-worker-8         62.50 ms  ( 5.4%)
+      ForkJoinPool-8-worker-6         46.88 ms  ( 4.1%)
+      최대/최소 = 2.67배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+
+200   순차          4052.27      3793.75       0.94      3712.50        -
+200   병렬           738.78      6853.13       9.28         0.00     5.49
+   [N=200 병렬 워커별 CPU 장부] 활동 워커 12개, CPU 합 6656.3ms
+      ForkJoinPool-16-worker-1       625.00 ms  ( 9.4%)
+      ForkJoinPool-16-worker-7       625.00 ms  ( 9.4%)
+      ForkJoinPool-16-worker-10      609.38 ms  ( 9.2%)
+      ForkJoinPool-16-worker-2       593.75 ms  ( 8.9%)
+      ForkJoinPool-16-worker-9       562.50 ms  ( 8.5%)
+      ForkJoinPool-16-worker-3       546.88 ms  ( 8.2%)
+      ForkJoinPool-16-worker-8       546.88 ms  ( 8.2%)
+      ForkJoinPool-16-worker-4       531.25 ms  ( 8.0%)
+      ForkJoinPool-16-worker-6       531.25 ms  ( 8.0%)
+      ForkJoinPool-16-worker-12      515.63 ms  ( 7.7%)
+      ForkJoinPool-16-worker-11      500.00 ms  ( 7.5%)
+      ForkJoinPool-16-worker-5       468.75 ms  ( 7.0%)
+      최대/최소 = 1.33배 (1.0에 가까울수록 고르게 분배, 클수록 쏠림)
+
+
+BUILD SUCCESSFUL in 41s
+4 actionable tasks: 2 executed, 2 up-to-date
+오후 7:50:27: Execution finished ':com.exercisemanagement.challenge.service.ImproveCpuUtilizationProbe.main()'.
