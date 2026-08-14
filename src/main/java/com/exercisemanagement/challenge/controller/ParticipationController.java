@@ -42,8 +42,9 @@ public class ParticipationController {
         ParticipationCompleteResponse response =
                 participationService.apply(challengeId, authentication.getName(), request);
 
+        /* 최근 30일 기록 없음 — 기준 측정 필요 (202 Accepted) */
         if (response == null) {
-            // 최근 30일 기록 없음 — 기준 측정 필요 (202 Accepted)
+            // 응답을 받고 js 에서 랜더링
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(new BaselineRequiredResponse("기준 측정 필요"));
         }
