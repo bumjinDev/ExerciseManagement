@@ -30,6 +30,8 @@ public class ChallengeQueryController {
     public ResponseEntity<ChallengeListResponse> list(
             @RequestParam(name = "status", required = false) String status) {
 
+        /* 챌린지 조회 시 원하는 챌린지 상태를 선택 하여 조회 위한 분기, 만약 null 이라면 전체 챌린지를 조회할 수 있도록 서비스 로직 호출
+        *   _추후 이 부분 비즈니스 로직 서비스 빈으로 위치 이동 필요. */
         ChallengeStatus filter = null;
         if (status != null && !status.isBlank()) {
             try {

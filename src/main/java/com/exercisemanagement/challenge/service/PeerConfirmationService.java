@@ -50,39 +50,58 @@ public class PeerConfirmationService {
         this.idGenerator = idGenerator;
     }
 
+    /*
+    * @ sumissionId : 모든 챌린지의 각 챌린지 참여자가 인증 올린 각 인증 별 식별자
+    * @ confirmerId : 어떤 유저가 올린 인증을 확인 또는 반려 하기 위해 요청을 한 팀원의 식별자
+    * @ decision : "확인" 또는 "반려"
+    * */
     @Transactional
     public ConfirmationResponse confirm(String submissionId, String confirmerId, ConfirmationDecision decision) {
+
+        // ** submissionRepository : 각 챌린지 ID 별 사용자 ID 각각에 대해 챌린지 내 인증 내역을 저장 테이블
+
+        /* 1. 조회 하려는 챌린지 내 확인/반려 인증 받을 사람의 인증 내역 자체를 우선 로드. */
         Submission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_SUB_NOT_FOUND));
 
+        /* 2. 개인 인증 내역에서 챌린지 ID 로 챌린지 자체 정보 로드. */
         Challenge challenge = challengeRepository.findById(submission.getChallengeId())
                 .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_CHL_NOT_FOUND));
 
-        // 윈도우 종료 뒤 들어오는 확인은 종료 시각과 비교해 거부 (F008)
+        // 챌랜지 윈도우 시간 종료 뒤 받은 확인/반려 요청은 종료 시각과 비교해 거부 한다. 그리고 이러한 인증 내역은 만료 처리 되어 개인 수역 내역 및 팀 볼륨에 포함 안됨 (F008)
         if (LocalDateTime.now().isAfter(challenge.confirmWindowEnd())) {
             throw new ChallengeApiException(ErrorCode.E_CFM_WINDOW_CLOSED);
         }
 
         // 1. 권한 검사 (8.2.2 순서 그대로: 같은 팀 → 본인 아님 → 확인 대기 상태)
+        // ** participationRepository : 각 챌린지 ID 별 사용자 ID 각각에 대해 챌린지 참여 내역 자체를 저장 테이블
+
+        /* 해당 챌린지 내 요청자(확인 혹은 반려 api 요청자 본인)에 대한 챌린지 참여 내역 조회 */
         Participation confirmer = participationRepository
                 .findByChallengeIdAndParticipantId(submission.getChallengeId(), confirmerId)
-                .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)
-                .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_CFM_NOT_TEAMMATE));
+                .filter(p -> p.getStatus() == ParticipationStatus.ACTIVE)           // 조회 후 현재 이탈한 사람이 아닌지도 검사
+                .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_CFM_NOT_TEAMMATE));   // 없으면 예외 - 같은 챌린지 참여자가 아니라는 의미
 
+        /* 해당 챌린지 내 참여한 검증 받을 대상자(인증자)에 대한 챌린지 참여 내역 조회 */
         Participation submitter = participationRepository
                 .findByChallengeIdAndParticipantId(submission.getChallengeId(), submission.getParticipantId())
-                .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_CFM_NOT_TEAMMATE));
+                .orElseThrow(() -> new ChallengeApiException(ErrorCode.E_CFM_NOT_TEAMMATE));   // 없으면 예외
 
+        /* "participationRepository" 내 팀 아이디를 비교해서 같은 팀인지 비교 확인 */
         if (confirmer.getTeamId() == null || !confirmer.getTeamId().equals(submitter.getTeamId())) {
             throw new ChallengeApiException(ErrorCode.E_CFM_NOT_TEAMMATE);
         }
+        
+        /* 확인/반려 요청자가 본인이 챌린지 내 인증 데이터 올린 사람과 같은지 비교 확인 */
         if (confirmerId.equals(submission.getParticipantId())) {
             throw new ChallengeApiException(ErrorCode.E_CFM_SELF_CONFIRM);
         }
+        
+        /* 현재 인증 내역이 확인 대기 상태가 맞는 지 확인 : 이미 확인 처리된 것 이라면 두 번 중복 상태 반영 하면 안됨 */
         if (submission.getStatus() != SubmissionStatus.PENDING) {
             throw new ChallengeApiException(ErrorCode.E_CFM_ALREADY_TERMINAL);
         }
-        // 이중 확인 방어: 기록이 이미 있으면 종착 처리된 것 (무제약 스키마 기간의 애플리케이션 방어)
+        // 이중 확인 방어: 기록이 이미 있으면 종착 처리된 것 (무제약 스키마 기간의 애플리케이션 방어) : Confirmation 테이블 내 저장함
         if (confirmationRepository.findBySubmissionId(submissionId).isPresent()) {
             throw new ChallengeApiException(ErrorCode.E_CFM_ALREADY_TERMINAL);
         }
@@ -96,7 +115,7 @@ public class PeerConfirmationService {
                 .confirmedAt(LocalDateTime.now())
                 .build());
 
-        // 3. 상태 전이 (정족수 1) + 4. 누적 반영
+        // 3. 상태 전이 : "확인" 혹은 "반려" 요청에 따라 "확인" 또는 "반려" 반영 - 설계 명세서 및 요구사항 명세서 대로 최종 볼륨 반영은 챌린지 끝나는 시점에 일괄 적용
         boolean confirmed = decision == ConfirmationDecision.CONFIRM;
         submission.setStatus(confirmed ? SubmissionStatus.CONFIRMED : SubmissionStatus.REJECTED);
         submissionRepository.save(submission);
