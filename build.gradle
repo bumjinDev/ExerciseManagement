@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'me.champeau.jmh' version '0.7.2'   // JMH 벤치마크. 소스는 src/jmh/java, 실행은 gradlew jmh
 }
 
 group = 'com.exercisemanagement'
@@ -38,4 +39,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jmh {
+	jmhVersion = '1.37'                                    // JMH 라이브러리 버전 (플러그인이 의존성 자동 구성)
+	duplicateClassesStrategy = DuplicatesStrategy.EXCLUDE  // jmhJar 패키징 시 중복 리소스 충돌 방지
+	// fork/warmup 등 측정 설정은 여기서 전역으로도 걸 수 있으나,
+	// 학습 목적상 벤치마크 클래스(SeedGreedyBench)의 어노테이션에 명시한다.
+	includes = ['ImproveBench']        // ← 이 줄 추가: 이 이름에 맞는 벤치만 실행
+//	profilers = ['gc']                 // [이전 설정 · 보존] Phase 4 gc 진단용 — 호출당 할당량(B/op)·GC 시간 계측. -prof gc 측정 세션에서 재사용 예정(2026-07-27 비활성화)
 }

@@ -31,12 +31,15 @@ public class ChallengeQueryService {
         this.participationRepository = participationRepository;
     }
 
+    /* 챌린 지 조회 요청(HTTP GET) 에 대한 응답 :
+    *   status - null : 모든 챌린지 조회   */
     @Transactional(readOnly = true)
     public ChallengeListResponse list(ChallengeStatus status) {
         List<Challenge> challenges = (status == null)
                 ? challengeRepository.findAll()
                 : challengeRepository.findByStatus(status);
 
+        /* 조회된 챌린지들을 응답 데이터로 구성 : Stream 람다식 사용하여 객체로 변환. */
         List<ChallengeSummaryResponse> summaries = challenges.stream()
                 .map(c -> ChallengeSummaryResponse.builder()
                         .challengeId(c.getChallengeId())
