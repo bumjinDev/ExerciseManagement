@@ -1,0 +1,4 @@
+py -3 probelog_to_xlsx.py 입력파일.txt
+py -3 probelog_to_xlsx.py "입력파일.txt" -o "결과.xlsx"
+
+py -3 "2.probelog_to_xlsx.py" "..\기타\원본데이터\3. improve_forkjoin_4.1_계측_스윕_N200_원본데이터\Improve forkjoin 4.1 계측 스윕 측정결과 n200 20260730_원본데이터.txt" -o "프로브표로그_4.1계측스윕_N200_20260730.xlsx"
