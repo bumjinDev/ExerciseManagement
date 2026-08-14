@@ -1,0 +1,470 @@
+PS E:\devSpace\SpringBootProjects\ExerciseManagement> cl
+cl : 'cl' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 프로그램 이름으로 인식되지 않습니다. 이름이 정확한지 확인하고 경로가 포함된 경우 경로가 올바른지 검증한 다음
+다시 시도하십시오.
+위치 줄:1 문자:1
++ cl
++ ~~
+    + CategoryInfo          : ObjectNotFound: (cl:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+PS E:\devSpace\SpringBootProjects\ExerciseManagement> ./gradlew jmh
+
+> Task :jmhRunBytecodeGenerator
+Processing 2 classes from E:\devSpace\SpringBootProjects\ExerciseManagement\build\classes\java\jmh with "reflection" generator
+Writing out Java source to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-sources and resources to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-resources
+Processing 1 classes from E:\devSpace\SpringBootProjects\ExerciseManagement\build\classes\java\test with "reflection" generator
+Writing out Java source to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-sources and resources to E:\devSpace\SpringBootProjects\ExerciseManagement\build\jmh-generated-resources
+
+> Task :jmh
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 3000, teamCount = 3)
+
+# Run progress: 0.00% complete, ETA 00:03:00
+# Fork: 1 of 2
+# Warmup Iteration   1: 86.907 us/op
+# Warmup Iteration   2: 57.407 us/op
+# Warmup Iteration   3: 56.120 us/op
+# Warmup Iteration   4: 55.834 us/op
+# Warmup Iteration   5: 56.802 us/op
+Iteration   1: 55.887 us/opNG [13s]
+Iteration   2: 55.675 us/opNG [14s]
+Iteration   3: 57.493 us/opNG [15s]
+Iteration   4: 54.881 us/opNG [16s]
+Iteration   5: 55.085 us/opNG [17s]
+
+# Run progress: 5.56% complete, ETA 00:02:59
+# Fork: 2 of 2
+# Warmup Iteration   1: 87.190 us/op
+# Warmup Iteration   2: 56.076 us/op
+# Warmup Iteration   3: 56.049 us/op
+# Warmup Iteration   4: 54.968 us/op
+# Warmup Iteration   5: 55.313 us/op
+Iteration   1: 56.388 us/opNG [24s]
+Iteration   2: 55.962 us/opNG [25s]
+Iteration   3: 54.350 us/opNG [26s]
+Iteration   4: 56.036 us/opNG [27s]
+Iteration   5: 55.557 us/opNG [28s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  55.731 ±(99.9%) 1.313 us/op [Average]
+  (min, avg, max) = (54.350, 55.731, 57.493), stdev = 0.868
+  CI (99.9%): [54.418, 57.044] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 3000, teamCount = 30)
+
+# Run progress: 11.11% complete, ETA 00:02:48
+# Fork: 1 of 2
+# Warmup Iteration   1: 280.852 us/op
+# Warmup Iteration   2: 205.290 us/op
+# Warmup Iteration   3: 204.201 us/op
+# Warmup Iteration   4: 204.504 us/op
+# Warmup Iteration   5: 204.462 us/op
+Iteration   1: 205.823 us/opG [35s]
+Iteration   2: 205.379 us/opG [36s]
+Iteration   3: 206.628 us/opG [37s]
+Iteration   4: 202.956 us/opG [38s]
+Iteration   5: 204.034 us/opG [39s]
+
+# Run progress: 16.67% complete, ETA 00:02:38
+# Fork: 2 of 2
+# Warmup Iteration   1: 283.742 us/op
+# Warmup Iteration   2: 215.477 us/op
+# Warmup Iteration   3: 216.069 us/op
+# Warmup Iteration   4: 211.614 us/op
+# Warmup Iteration   5: 211.201 us/op
+Iteration   1: 211.633 us/opG [45s]
+Iteration   2: 208.655 us/opG [46s]
+Iteration   3: 210.368 us/opG [47s]
+Iteration   4: 209.573 us/opG [48s]
+Iteration   5: 212.883 us/opG [49s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  207.793 ±(99.9%) 5.034 us/op [Average]
+  (min, avg, max) = (202.956, 207.793, 212.883), stdev = 3.330
+  CI (99.9%): [202.759, 212.828] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 3000, teamCount = 300)
+
+# Run progress: 22.22% complete, ETA 00:02:27
+# Fork: 1 of 2
+# Warmup Iteration   1: 560.786 us/op
+# Warmup Iteration   2: 407.288 us/op
+# Warmup Iteration   3: 402.233 us/op
+# Warmup Iteration   4: 398.416 us/op
+# Warmup Iteration   5: 414.014 us/op
+Iteration   1: 398.500 us/opG [56s]
+Iteration   2: 396.170 us/opG [57s]
+Iteration   3: 398.075 us/opG [58s]
+Iteration   4: 420.590 us/opG [59s]
+Iteration   5: 404.928 us/opG [1m]
+
+# Run progress: 27.78% complete, ETA 00:02:16
+# Fork: 2 of 2
+# Warmup Iteration   1: 537.211 us/op
+# Warmup Iteration   2: 406.119 us/op
+# Warmup Iteration   3: 402.554 us/op
+# Warmup Iteration   4: 403.680 us/op
+# Warmup Iteration   5: 398.531 us/op
+Iteration   1: 393.109 us/opG [1m 6s]
+Iteration   2: 398.776 us/opG [1m 7s]
+Iteration   3: 401.929 us/opG [1m 8s]
+Iteration   4: 396.896 us/opG [1m 9s]
+Iteration   5: 399.489 us/opG [1m 10s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  400.846 ±(99.9%) 11.539 us/op [Average]
+  (min, avg, max) = (393.109, 400.846, 420.590), stdev = 7.632
+  CI (99.9%): [389.307, 412.385] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 30000, teamCount = 3)
+
+# Run progress: 33.33% complete, ETA 00:02:06
+# Fork: 1 of 2
+# Warmup Iteration   1: 1057.721 us/op
+# Warmup Iteration   2: 792.865 us/op]
+# Warmup Iteration   3: 759.970 us/op]
+# Warmup Iteration   4: 772.264 us/op]
+# Warmup Iteration   5: 778.992 us/op]
+Iteration   1: 754.828 us/opG [1m 17s]
+Iteration   2: 779.194 us/opG [1m 18s]
+Iteration   3: 776.837 us/opG [1m 19s]
+Iteration   4: 781.448 us/opG [1m 20s]
+Iteration   5: 790.723 us/opG [1m 21s]
+
+# Run progress: 38.89% complete, ETA 00:01:56
+# Fork: 2 of 2
+# Warmup Iteration   1: 1073.596 us/op
+# Warmup Iteration   2: 758.106 us/op]
+# Warmup Iteration   3: 754.605 us/op]
+# Warmup Iteration   4: 738.337 us/op]
+# Warmup Iteration   5: 750.431 us/op]
+Iteration   1: 748.177 us/opG [1m 27s]
+Iteration   2: 759.138 us/opG [1m 28s]
+Iteration   3: 749.810 us/opG [1m 29s]
+Iteration   4: 755.251 us/opG [1m 30s]
+Iteration   5: 748.538 us/opG [1m 32s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  764.394 ±(99.9%) 24.104 us/op [Average]
+  (min, avg, max) = (748.177, 764.394, 790.723), stdev = 15.943
+  CI (99.9%): [740.290, 788.499] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 30000, teamCount = 30)
+
+# Run progress: 44.44% complete, ETA 00:01:45
+# Fork: 1 of 2
+# Warmup Iteration   1: 3087.835 us/op
+# Warmup Iteration   2: 2418.197 us/op
+# Warmup Iteration   3: 2421.406 us/op
+# Warmup Iteration   4: 2391.429 us/op
+# Warmup Iteration   5: 2420.947 us/op
+Iteration   1: 2388.799 us/op [1m 38s]
+Iteration   2: 2433.091 us/op [1m 39s]
+Iteration   3: 2407.433 us/op [1m 40s]
+Iteration   4: 2349.924 us/op [1m 41s]
+Iteration   5: 2397.617 us/op [1m 42s]
+
+# Run progress: 50.00% complete, ETA 00:01:35
+# Fork: 2 of 2
+# Warmup Iteration   1: 3291.207 us/op
+# Warmup Iteration   2: 2661.434 us/op
+# Warmup Iteration   3: 2570.057 us/op
+# Warmup Iteration   4: 2556.734 us/op
+# Warmup Iteration   5: 2554.142 us/op
+Iteration   1: 2496.352 us/op [1m 49s]
+Iteration   2: 2491.233 us/op [1m 50s]
+Iteration   3: 2561.881 us/op [1m 51s]
+Iteration   4: 2511.942 us/op [1m 52s]
+Iteration   5: 2541.320 us/op [1m 53s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  2457.959 ±(99.9%) 108.685 us/op [Average]
+  (min, avg, max) = (2349.924, 2457.959, 2561.881), stdev = 71.888
+  CI (99.9%): [2349.274, 2566.644] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 30000, teamCount = 300)
+
+# Run progress: 55.56% complete, ETA 00:01:24
+# Fork: 1 of 2
+# Warmup Iteration   1: 5533.538 us/op
+# Warmup Iteration   2: 4413.642 us/op
+# Warmup Iteration   3: 4337.676 us/op
+# Warmup Iteration   4: 4399.280 us/op
+# Warmup Iteration   5: 4385.719 us/op
+Iteration   1: 4482.601 us/op [1m 59s]
+Iteration   2: 4469.544 us/op [2m]
+Iteration   3: 4449.463 us/op [2m 2s]
+Iteration   4: 4503.861 us/op [2m 3s]
+Iteration   5: 4480.519 us/op [2m 4s]
+
+# Run progress: 61.11% complete, ETA 00:01:14
+# Fork: 2 of 2
+# Warmup Iteration   1: 5777.438 us/op
+# Warmup Iteration   2: 4792.213 us/op
+# Warmup Iteration   3: 4517.293 us/op
+# Warmup Iteration   4: 4712.311 us/op
+# Warmup Iteration   5: 4708.243 us/op
+Iteration   1: 4741.027 us/op [2m 10s]
+Iteration   2: 4750.634 us/op [2m 11s]
+Iteration   3: 4784.236 us/op [2m 12s]
+Iteration   4: 4761.844 us/op [2m 13s]
+Iteration   5: 4804.061 us/op [2m 14s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  4622.779 ±(99.9%) 234.297 us/op [Average]
+  (min, avg, max) = (4449.463, 4622.779, 4804.061), stdev = 154.973
+  CI (99.9%): [4388.482, 4857.076] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 300000, teamCount = 3)
+
+# Run progress: 66.67% complete, ETA 00:01:03
+# Fork: 1 of 2
+# Warmup Iteration   1: 16596.928 us/op
+# Warmup Iteration   2: 8464.450 us/op
+# Warmup Iteration   3: 8159.895 us/op
+# Warmup Iteration   4: 8338.472 us/op
+# Warmup Iteration   5: 8245.462 us/op
+Iteration   1: 8326.448 us/op [2m 22s]
+Iteration   2: 8319.169 us/op [2m 23s]
+Iteration   3: 8278.887 us/op [2m 24s]
+Iteration   4: 8139.733 us/op [2m 25s]
+Iteration   5: 8265.695 us/op [2m 26s]
+
+# Run progress: 72.22% complete, ETA 00:00:53
+# Fork: 2 of 2
+# Warmup Iteration   1: 15537.314 us/op
+# Warmup Iteration   2: 9219.393 us/op
+# Warmup Iteration   3: 9392.724 us/op
+# Warmup Iteration   4: 9376.644 us/op
+# Warmup Iteration   5: 9452.763 us/op
+Iteration   1: 9374.753 us/op [2m 33s]
+Iteration   2: 9305.229 us/op [2m 34s]
+Iteration   3: 9596.927 us/op [2m 35s]
+Iteration   4: 9214.150 us/op [2m 36s]
+Iteration   5: 9495.690 us/op [2m 37s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  8831.668 ±(99.9%) 917.499 us/op [Average]
+  (min, avg, max) = (8139.733, 8831.668, 9596.927), stdev = 606.869
+  CI (99.9%): [7914.169, 9749.168] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 300000, teamCount = 30)
+
+# Run progress: 77.78% complete, ETA 00:00:42
+# Fork: 1 of 2
+# Warmup Iteration   1: 36819.325 us/op
+# Warmup Iteration   2: 24054.502 us/op
+# Warmup Iteration   3: 23958.486 us/op
+# Warmup Iteration   4: 23871.867 us/op
+# Warmup Iteration   5: 23902.756 us/op
+Iteration   1: 24119.455 us/op[2m 44s]
+Iteration   2: 23979.414 us/op[2m 45s]
+Iteration   3: 23789.881 us/op[2m 46s]
+Iteration   4: 24181.123 us/op[2m 47s]
+Iteration   5: 23931.670 us/op[2m 48s]
+
+# Run progress: 83.33% complete, ETA 00:00:32
+# Fork: 2 of 2
+# Warmup Iteration   1: 40213.972 us/op
+# Warmup Iteration   2: 26409.777 us/op
+# Warmup Iteration   3: 26264.251 us/op
+# Warmup Iteration   4: 25971.848 us/op
+# Warmup Iteration   5: 26092.187 us/op
+Iteration   1: 26604.413 us/op[2m 56s]
+Iteration   2: 26018.821 us/op[2m 57s]
+Iteration   3: 26041.715 us/op[2m 58s]
+Iteration   4: 26266.656 us/op[2m 59s]
+Iteration   5: 26097.385 us/op[3m]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  25103.053 ±(99.9%) 1781.243 us/op [Average]
+  (min, avg, max) = (23789.881, 25103.053, 26604.413), stdev = 1178.182
+  CI (99.9%): [23321.811, 26884.296] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 17.0.11, Java HotSpot(TM) 64-Bit Server VM, 17.0.11+7-LTS-207
+# VM invoker: C:\Program Files\Java\jdk-17\bin\java.exe
+# VM options: -Dfile.encoding=x-windows-949 -Djava.io.tmpdir=E:\devSpace\SpringBootProjects\ExerciseManagement\build\tmp\jmh -Duser.country=KR -Duser.language=ko -Duser.variant
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.exercisemanagement.challenge.service.SeedGreedyBench.run
+# Parameters: (memberCount = 300000, teamCount = 300)
+
+# Run progress: 88.89% complete, ETA 00:00:21
+# Fork: 1 of 2
+# Warmup Iteration   1: 64267.763 us/op
+# Warmup Iteration   2: 44502.726 us/op
+# Warmup Iteration   3: 43815.761 us/op
+# Warmup Iteration   4: 43713.374 us/op
+# Warmup Iteration   5: 44179.439 us/op
+Iteration   1: 43661.671 us/op[3m 7s]
+Iteration   2: 44330.209 us/op[3m 8s]
+Iteration   3: 43819.229 us/op[3m 9s]
+Iteration   4: 44055.296 us/op[3m 10s]
+Iteration   5: 44015.826 us/op[3m 11s]
+
+# Run progress: 94.44% complete, ETA 00:00:10
+# Fork: 2 of 2
+# Warmup Iteration   1: 56371.583 us/op
+# Warmup Iteration   2: 40811.636 us/op
+# Warmup Iteration   3: 42303.896 us/op
+# Warmup Iteration   4: 41226.168 us/op
+# Warmup Iteration   5: 41445.312 us/op
+Iteration   1: 41074.720 us/op[3m 19s]
+Iteration   2: 41131.920 us/op[3m 20s]
+Iteration   3: 41445.424 us/op[3m 21s]
+Iteration   4: 41692.356 us/op[3m 22s]
+Iteration   5: 41989.016 us/op[3m 23s]
+
+
+Result "com.exercisemanagement.challenge.service.SeedGreedyBench.run":
+  42721.567 ±(99.9%) 2052.878 us/op [Average]
+  (min, avg, max) = (41074.720, 42721.567, 44330.209), stdev = 1357.852
+  CI (99.9%): [40668.688, 44774.445] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:03:15
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark            (memberCount)  (teamCount)  Mode  Cnt      Score      Error  Units
+SeedGreedyBench.run           3000            3  avgt   10     55.731 ±    1.313  us/op
+SeedGreedyBench.run           3000           30  avgt   10    207.793 ±    5.034  us/op
+SeedGreedyBench.run           3000          300  avgt   10    400.846 ±   11.539  us/op
+SeedGreedyBench.run          30000            3  avgt   10    764.394 ±   24.104  us/op
+SeedGreedyBench.run          30000           30  avgt   10   2457.959 ±  108.685  us/op
+SeedGreedyBench.run          30000          300  avgt   10   4622.779 ±  234.297  us/op
+SeedGreedyBench.run         300000            3  avgt   10   8831.668 ±  917.499  us/op
+SeedGreedyBench.run         300000           30  avgt   10  25103.053 ± 1781.243  us/op
+SeedGreedyBench.run         300000          300  avgt   10  42721.567 ± 2052.878  us/op
+
+Benchmark result is saved to E:\devSpace\SpringBootProjects\ExerciseManagement\build\results\jmh\results.txt
+
+[Incubating] Problems report is available at: file:///E:/devSpace/SpringBootProjects/ExerciseManagement/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3m 25s
+8 actionable tasks: 4 executed, 4 up-to-date
+PS E:\devSpace\SpringBootProjects\ExerciseManagement>

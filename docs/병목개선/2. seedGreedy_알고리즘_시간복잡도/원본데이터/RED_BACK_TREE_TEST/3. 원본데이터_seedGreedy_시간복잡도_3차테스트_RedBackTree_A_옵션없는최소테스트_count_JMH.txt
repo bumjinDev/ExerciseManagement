@@ -1,0 +1,29 @@
+오후 12:23:44: Executing ':com.exercisemanagement.challenge.service.SeedGreedyBranchCount.main()'…
+
+Starting Gradle Daemon...
+Gradle Daemon started in 1 s 620 ms
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :compileJmhJava
+> Task :processJmhResources NO-SOURCE
+> Task :jmhClasses
+
+> Task :com.exercisemanagement.challenge.service.SeedGreedyBranchCount.main()
+N        K     cap       compareV4       perMember(/N)    perMember/log2K 
+3000     3     1000      5724            1.908            1.204           
+3000     30    100       17699           5.900            1.202           
+3000     300   10        33582           11.194           1.360           
+30000    3     10000     59663           1.989            1.255           
+30000    30    1000      198274          6.609            1.347           
+30000    300   100       332676          11.089           1.348           
+300000   3     100000    599384          1.998            1.261           
+300000   30    10000     2086863         6.956            1.418           
+300000   300   1000      3930372         13.101           1.592           
+
+BUILD SUCCESSFUL in 13s
+5 actionable tasks: 4 executed, 1 up-to-date
+오후 12:23:59: Execution finished ':com.exercisemanagement.challenge.service.SeedGreedyBranchCount.main()'.
