@@ -38,3 +38,7 @@ out/
 .env
 *.log
 /data/
+~$*
+/*.jfr
+git_status.txt
+_to_delete/
