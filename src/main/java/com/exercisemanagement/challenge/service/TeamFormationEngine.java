@@ -484,26 +484,25 @@ public class TeamFormationEngine {
 
     /* ===== fork-join 병렬 구간 ===== */
 
+    /** 운영 분할 개수. 증분 재계산 측정(인원 200, 정원 10, 논리 프로세서 12)에서
+     *  워커 스레드 12개에 분할 9가 여섯 실행 중 다섯에서 가장 빨랐다.
+     *  다른 입력 크기와 기계에서는 재측정 전까지 근거가 없다. */
+    private static final int OPERATIONAL_SPLIT_COUNT = 9;
+
     /**
      * 교환 반복을 실행한다. 운영 경로의 진입점이다.
      *
-     * <p>풀 병렬도는 논리 프로세서 수로 두고, 분할 중단 크기도 여기서 계산해 본체에 넘긴다.
+     * <p>풀 병렬도는 논리 프로세서 수로 두고, 말단 작업은 측정으로 고른 분할 개수로 나눈다.
+     * 짝 수가 분할 개수보다 적으면 본체의 분할 규칙이 짝 수에서 멈춘다.
      *
      * @param teams     팀 편성 대상 전체. 이 목록을 제자리에서 고친다
      * @param tolerance 합 편차 허용폭
      */
     void improve(List<List<Member>> teams, double tolerance) {
 
-        int cpuCount = Runtime.getRuntime().availableProcessors();       // 풀 병렬도이자 분할 중단 크기의 계산 기준
+        int cpuCount = Runtime.getRuntime().availableProcessors();   // 풀 병렬도
 
-        int teamCount = teams.size();                                    // 팀 수
-        int pairCount = teamCount * (teamCount - 1) / 2;                 // 팀 짝 수
-
-        /* 분할 중단 크기. 말단 작업 하나가 맡는 짝 개수이고, 담당 구간이 이 값보다 길면 반으로 나눈다.
-           max(1, …)는 짝 수가 프로세서 수보다 작을 때 0이 되는 것을 막는다. */
-        int workSize = Math.max(1, pairCount / cpuCount);
-
-        improve(teams, tolerance, cpuCount, workSize, 0);   // splitCount가 0이면 workSize 규칙으로 나눈다
+        improve(teams, tolerance, cpuCount, 0, OPERATIONAL_SPLIT_COUNT);   // 분할 개수 규칙으로 나눈다
     }
 
     /**
