@@ -218,7 +218,7 @@ public class TeamFormationEngine {
 //        return teams;
 //    }
 
-    /* [버전 2 · 활성] 우선순위 큐(이진 힙)로 구현한 판이다. 보고서 2편의 측정 코드와 같다.
+    /* [버전 2 · 비활성] 우선순위 큐(이진 힙)로 구현한 판이다. 보고서 2편의 측정 코드와 같다.
 
        구성 요소가 넷이다.
          teams  : 배정 결과. teams.get(t)가 팀 t의 인원 목록이다.
@@ -232,58 +232,58 @@ public class TeamFormationEngine {
 
        poll과 offer가 O(log K)다. 힙은 최솟값 하나만 보장하는 부분 정렬이고,
        그 점이 전체 정렬 순서를 늘 유지하는 아래 버전 4의 레드블랙 트리와 다르다. */
-    List<List<Member>> seedGreedy(List<Member> sorted, int teamCount, int teamCapacity) {
+//    List<List<Member>> seedGreedy(List<Member> sorted, int teamCount, int teamCapacity) {
+//
+//        List<List<Member>> teams = emptyTeams(teamCount);       // 배정 결과. teams.get(t)가 팀 t의 인원 목록이다
+//        double[] sums = new double[teamCount];                  // 팀별 현재 합. 비교자가 읽는 키의 유일한 원본이다
+//
+//        // 팀 인덱스 둘을 받아 호출 시점의 sums 값을 조회해 비교한다.
+//        // 여기서는 규칙을 등록만 하고, 실제 비교는 offer와 poll 안에서 힙이 자리를 잡을 때 실행된다.
+//        // 우선순위는 합 오름차순이고 동점이면 인덱스 오름차순이다.
+//        // 이 동점 규칙이 선형 스캔의 "합이 같으면 낮은 인덱스" 규칙과 배정 결과를 맞춘다.
+//        //
+//        // 주의: 비교 키가 밖에 있는 가변 배열 sums다. 힙은 큐 안에 있는 원소의 키가 바뀌는 것을 알아채지 못한다.
+//        // 그래서 꺼낸 뒤에 합을 고치고 다시 넣는 순서를 지켜야 정렬이 유지된다.
+//        Comparator<Integer> byTeamSumThenIndex = new Comparator<Integer>() {
+//            @Override
+//            public int compare(Integer a, Integer b) {
+////                countCompareV2++;   // [계수 실험 · 비활성] 다시 셀 때 이 줄만 주석 해제한다
+//                int bySum = Double.compare(sums[a], sums[b]);
+//                if (bySum != 0) {
+//                    return bySum;
+//                }
+//                return Integer.compare(a, b);
+//            }
+//        };
+//
+//        // 큐에 담는 것은 팀 인덱스뿐이다. 합과 인원은 담지 않는다.
+//        // 큐에 있다는 것은 자리가 남은 배정 후보라는 뜻이고, 우선순위는 비교자가 sums를 읽어 정한다.
+//        PriorityQueue<Integer> pq = new PriorityQueue<>(byTeamSumThenIndex);
+//
+//        // 전 팀을 후보로 등록한다. 시작은 모두 합이 0으로 동점이라 인덱스 규칙에 따라 팀 0이 최솟값이 된다.
+//        for (int t = 0; t < teamCount; t++) {
+//            pq.offer(t);
+//        }
+//
+//        for (Member m : sorted) {
+//            // 합이 가장 작은 팀의 인덱스를 꺼낸다. 동점이면 인덱스가 낮은 쪽이다.
+//            // 선형 스캔에서 O(K)였던 안쪽 반복문이 이 한 줄 O(log K)로 바뀐 자리다.
+//            int best = pq.poll();
+//
+//            teams.get(best).add(m);                     // 배정. best는 teams와 sums가 함께 쓰는 인덱스다
+//            sums[best] += m.skill().doubleValue();      // 합 갱신. 다음 비교부터 이 값을 읽는다
+//
+//            // 다시 등록한다. 힙은 큐 안 원소의 키가 바뀐 것을 알아채지 못하므로,
+//            // 꺼낸 상태에서 합을 고친 뒤 되넣어 새 합 기준으로 재배치시킨다.
+//            // 자리가 찬 팀은 되넣지 않는다. 선형 스캔에서 꽉 찬 팀을 건너뛰던 것과 같은 효과다.
+//            if (teams.get(best).size() < teamCapacity) {
+//                pq.offer(best);
+//            }
+//        }
+//        return teams;
+//    }
 
-        List<List<Member>> teams = emptyTeams(teamCount);       // 배정 결과. teams.get(t)가 팀 t의 인원 목록이다
-        double[] sums = new double[teamCount];                  // 팀별 현재 합. 비교자가 읽는 키의 유일한 원본이다
-
-        // 팀 인덱스 둘을 받아 호출 시점의 sums 값을 조회해 비교한다.
-        // 여기서는 규칙을 등록만 하고, 실제 비교는 offer와 poll 안에서 힙이 자리를 잡을 때 실행된다.
-        // 우선순위는 합 오름차순이고 동점이면 인덱스 오름차순이다.
-        // 이 동점 규칙이 선형 스캔의 "합이 같으면 낮은 인덱스" 규칙과 배정 결과를 맞춘다.
-        //
-        // 주의: 비교 키가 밖에 있는 가변 배열 sums다. 힙은 큐 안에 있는 원소의 키가 바뀌는 것을 알아채지 못한다.
-        // 그래서 꺼낸 뒤에 합을 고치고 다시 넣는 순서를 지켜야 정렬이 유지된다.
-        Comparator<Integer> byTeamSumThenIndex = new Comparator<Integer>() {
-            @Override
-            public int compare(Integer a, Integer b) {
-//                countCompareV2++;   // [계수 실험 · 비활성] 다시 셀 때 이 줄만 주석 해제한다
-                int bySum = Double.compare(sums[a], sums[b]);
-                if (bySum != 0) {
-                    return bySum;
-                }
-                return Integer.compare(a, b);
-            }
-        };
-
-        // 큐에 담는 것은 팀 인덱스뿐이다. 합과 인원은 담지 않는다.
-        // 큐에 있다는 것은 자리가 남은 배정 후보라는 뜻이고, 우선순위는 비교자가 sums를 읽어 정한다.
-        PriorityQueue<Integer> pq = new PriorityQueue<>(byTeamSumThenIndex);
-
-        // 전 팀을 후보로 등록한다. 시작은 모두 합이 0으로 동점이라 인덱스 규칙에 따라 팀 0이 최솟값이 된다.
-        for (int t = 0; t < teamCount; t++) {
-            pq.offer(t);
-        }
-
-        for (Member m : sorted) {
-            // 합이 가장 작은 팀의 인덱스를 꺼낸다. 동점이면 인덱스가 낮은 쪽이다.
-            // 선형 스캔에서 O(K)였던 안쪽 반복문이 이 한 줄 O(log K)로 바뀐 자리다.
-            int best = pq.poll();
-
-            teams.get(best).add(m);                     // 배정. best는 teams와 sums가 함께 쓰는 인덱스다
-            sums[best] += m.skill().doubleValue();      // 합 갱신. 다음 비교부터 이 값을 읽는다
-
-            // 다시 등록한다. 힙은 큐 안 원소의 키가 바뀐 것을 알아채지 못하므로,
-            // 꺼낸 상태에서 합을 고친 뒤 되넣어 새 합 기준으로 재배치시킨다.
-            // 자리가 찬 팀은 되넣지 않는다. 선형 스캔에서 꽉 찬 팀을 건너뛰던 것과 같은 효과다.
-            if (teams.get(best).size() < teamCapacity) {
-                pq.offer(best);
-            }
-        }
-        return teams;
-    }
-
-    /* [버전 4 · 비활성] java.util.TreeMap을 그대로 쓰는 레드블랙 트리 판이다.
+    /* [버전 4 · 활성] java.util.TreeMap을 그대로 쓰는 레드블랙 트리 판이다.
        실험 A와 B와 계수 측정을 2026-07-21에 마쳤다.
 
        직접 구현하지 않고 JDK의 레드블랙 트리 구현체인 TreeMap을 쓴다.
@@ -296,46 +296,46 @@ public class TeamFormationEngine {
     /** [버전 4] TreeMap의 키. 넣는 시점의 팀 합과 팀 인덱스를 담는다. 불변이라 트리 안에서 값이 바뀌지 않는다. */
     private record TeamKey(double sum, int team) { }
 
-//    List<List<Member>> seedGreedy(List<Member> sorted, int teamCount, int teamCapacity) {
-//
-//        List<List<Member>> teams = emptyTeams(teamCount);
-//        double[] sums = new double[teamCount];          // 팀별 현재 합 (증분 유지) — 재삽입 키를 만들 때 읽는다
-//
-//        // [규칙 정의] 1순위 = 합 오름차순, 2순위(동점) = 인덱스 오름차순. 버전 2 비교자와 같은 규칙.
-//        // 비교에 쓰는 값이 키 안에 저장된 값뿐이라(외부 배열 조회 없음) 트리 안 정렬은 항상 유효하다.
-//        Comparator<TeamKey> bySumThenIndex = new Comparator<TeamKey>() {
-//            @Override
-//            public int compare(TeamKey a, TeamKey b) {
-////                countCompareV4++;   // [계수 실험 임시 비활성] 재계수 시 이 줄만 주석 해제
-//                int bySum = Double.compare(a.sum(), b.sum());
-//                if (bySum != 0) {
-//                    return bySum;
-//                }
-//                return Integer.compare(a.team(), b.team());
-//            }
-//        };
-//
-//        // "트리 안에 있다" = 정원이 남은 배정 후보. 한 팀은 트리에 최대 한 번만 들어 있으므로
-//        // 키가 겹치는 일(compare == 0)은 없다 — put이 기존 항목을 덮어쓰는 경우는 발생하지 않는다.
-//        TreeMap<TeamKey, Integer> tree = new TreeMap<>(bySumThenIndex);
-//        for (int t = 0; t < teamCount; t++) {
-//            tree.put(new TeamKey(0.0, t), t);   // 시작은 전부 합 0(동점) → 2차 규칙에 따라 team0 이 최솟값
-//        }
-//
-//        for (Member m : sorted) {
-//            // 최소 키(가장 왼쪽 노드)를 꺼낸다. 선형 스캔의 안쪽 for O(K)가 이 한 줄 O(log K)로 대체된다.
-//            int best = tree.pollFirstEntry().getValue();
-//
-//            teams.get(best).add(m);                     // 팀 배정
-//            sums[best] += m.skill().doubleValue();      // 팀 별 합 갱신
-//
-//            // 갱신된 합으로 키를 새로 만들어 재삽입. 정원이 찬 팀은 되넣지 않는다 (다른 버전과 동일한 규칙).
-//            if (teams.get(best).size() < teamCapacity) {
-//                tree.put(new TeamKey(sums[best], best), best);
-//            }
-//        }
-//        return teams;
-//    }
+    List<List<Member>> seedGreedy(List<Member> sorted, int teamCount, int teamCapacity) {
+
+        List<List<Member>> teams = emptyTeams(teamCount);
+        double[] sums = new double[teamCount];          // 팀별 현재 합 (증분 유지) — 재삽입 키를 만들 때 읽는다
+
+        // [규칙 정의] 1순위 = 합 오름차순, 2순위(동점) = 인덱스 오름차순. 버전 2 비교자와 같은 규칙.
+        // 비교에 쓰는 값이 키 안에 저장된 값뿐이라(외부 배열 조회 없음) 트리 안 정렬은 항상 유효하다.
+        Comparator<TeamKey> bySumThenIndex = new Comparator<TeamKey>() {
+            @Override
+            public int compare(TeamKey a, TeamKey b) {
+//                countCompareV4++;   // [계수 실험 임시 비활성] 재계수 시 이 줄만 주석 해제
+                int bySum = Double.compare(a.sum(), b.sum());
+                if (bySum != 0) {
+                    return bySum;
+                }
+                return Integer.compare(a.team(), b.team());
+            }
+        };
+
+        // "트리 안에 있다" = 정원이 남은 배정 후보. 한 팀은 트리에 최대 한 번만 들어 있으므로
+        // 키가 겹치는 일(compare == 0)은 없다 — put이 기존 항목을 덮어쓰는 경우는 발생하지 않는다.
+        TreeMap<TeamKey, Integer> tree = new TreeMap<>(bySumThenIndex);
+        for (int t = 0; t < teamCount; t++) {
+            tree.put(new TeamKey(0.0, t), t);   // 시작은 전부 합 0(동점) → 2차 규칙에 따라 team0 이 최솟값
+        }
+
+        for (Member m : sorted) {
+            // 최소 키(가장 왼쪽 노드)를 꺼낸다. 선형 스캔의 안쪽 for O(K)가 이 한 줄 O(log K)로 대체된다.
+            int best = tree.pollFirstEntry().getValue();
+
+            teams.get(best).add(m);                     // 팀 배정
+            sums[best] += m.skill().doubleValue();      // 팀 별 합 갱신
+
+            // 갱신된 합으로 키를 새로 만들어 재삽입. 정원이 찬 팀은 되넣지 않는다 (다른 버전과 동일한 규칙).
+            if (teams.get(best).size() < teamCapacity) {
+                tree.put(new TeamKey(sums[best], best), best);
+            }
+        }
+        return teams;
+    }
 
 
     /*
