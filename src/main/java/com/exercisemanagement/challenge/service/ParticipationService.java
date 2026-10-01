@@ -307,7 +307,7 @@ public class ParticipationService {
             List<Participation> participants = participationRepository
                     .findByChallengeIdAndStatus(challenge.getChallengeId(), ParticipationStatus.ACTIVE);
 
-            /* 현재 챌린지 내 참가 신청을 한 사람들을 배정시키기 위해 참가 신천 사람들 내역을 가져와서 각 사람 별로 유저 id 와 유저 볼륨 값을 가져와서 Member 레코드로 만들기. */
+            /* 현재 챌린지 내 참가 신청을 한 사람들을 배정시키기 위해 참가 신청 사람들의 내역을 가져와서 각 사람 별로 유저 id 와 유저 볼륨 값을 가져와서 Member 레코드로 만들기. */
             List<TeamFormationEngine.Member> members = participants.stream()
                     .map(p -> new TeamFormationEngine.Member(p.getParticipationId(), p.getFormationSkill()))
                     .toList();

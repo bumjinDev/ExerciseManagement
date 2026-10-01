@@ -247,7 +247,7 @@ public class TeamFormationEngine {
 //        Comparator<Integer> byTeamSumThenIndex = new Comparator<Integer>() {
 //            @Override
 //            public int compare(Integer a, Integer b) {
-////                countCompareV2++;   // [계수 실험 · 비활성] 다시 셀 때 이 줄만 주석 해제한다
+////                countCompareV2++;   // [계수 실험, 비활성] 다시 셀 때 이 줄만 주석 해제한다
 //                int bySum = Double.compare(sums[a], sums[b]);
 //                if (bySum != 0) {
 //                    return bySum;
@@ -430,15 +430,15 @@ public class TeamFormationEngine {
 
                                 double newDistDev = distributionDeviationOf(teamSum, teamSqSum, teamSize);  // 교환 후 분포 편차. 여기서도 배열만 훑는다
 
-                                /* 교환 전의 최선 값과 이번 교환의 값을 견주어 갈래를 나눈다. */
+                                /* 교환 전의 최선 값과 이번 교환의 값을 견주어 조건에 따라 분기 한다. */
 
                                 // 분포 편차를 1e-12를 넘게 줄인 교환이다. 새 최선으로 채택하고 값과 위치와 키를 모두 갱신한다.
                                 if (newDistDev < bestNewDistDev - 1e-12) {
 
-                                    bestNewDistDev = newDistDev;
-                                    bestTeamA = a; bestIdxA = i; bestTeamB = b; bestIdxB = j;
+                                    bestNewDistDev = newDistDev;    // 매 교환 마다 분포 편차가 개선이 되었다면 그 분포 편차 값을 기준으로 다음 계산을 해야 한다.
+                                    bestTeamA = a; bestIdxA = i; bestTeamB = b; bestIdxB = j;   // 개선된 인덱스를 저장한다. 이유는 매번 비교를 할 때는 swap 한 것을 원상복귀하고 다시 검사하기 때문에.
 
-                                    // 교환된 상태에서 두 사람의 참가 식별자를 작은 것과 큰 것 순서로 기록한다.
+                                    // 교환된 상태에서 두 사람의 참가 식별자를 작은 것과 큰 것 순서로 기록한다. 이유는 두 개간 값 차이가 없으면 참가 식별자 순으로 재정렬 하기 위함.
                                     String idA = teams.get(a).get(i).participationId();
                                     String idB = teams.get(b).get(j).participationId();
 
@@ -453,6 +453,7 @@ public class TeamFormationEngine {
 
                                     String idA = teams.get(a).get(i).participationId();
                                     String idB = teams.get(b).get(j).participationId();
+
                                     String first = idA.compareTo(idB) <= 0 ? idA : idB;
                                     String second = idA.compareTo(idB) <= 0 ? idB : idA;
 
@@ -502,7 +503,7 @@ public class TeamFormationEngine {
 
         int cpuCount = Runtime.getRuntime().availableProcessors();   // 풀 병렬도
 
-        improve(teams, tolerance, cpuCount, 0, OPERATIONAL_SPLIT_COUNT);   // 분할 개수 규칙으로 나눈다
+        improve(teams, tolerance, cpuCount, 0, OPERATIONAL_SPLIT_COUNT);   // 분할 개수 : 테스트 결과 코어 개수(논리코어 기준) 12개와 말단 작업 분할 개수는 9개가 최적임.
     }
 
     /**
@@ -538,7 +539,6 @@ public class TeamFormationEngine {
         // 풀을 어디서 만들고 재사용할지는 아직 정하지 않았다.
         ForkJoinPool pool = new ForkJoinPool(parallelism);
 
-
         int teamCount = teams.size();
         int pairCount = teamCount * (teamCount - 1) / 2;    // 팀이 넷이면 짝은 여섯이다
 
@@ -547,11 +547,28 @@ public class TeamFormationEngine {
 
         int p = 0;
 
-        /* 팀 짝을 번호표 둘로 편다. p번 칸이 팀 pairA[p]와 팀 pairB[p]의 짝이다.
-           b를 a+1부터 돌려 a보다 뒤만 보므로 자기 짝도 없고 같은 짝을 두 번 세지도 않는다.
-           정원이 같아 짝 하나의 일량이 정원의 제곱으로 균일하다.
-           한 줄로 펴 두면 번호 구간을 어디서 잘라도 일량이 고르게 나뉜다.
-           팀 리스트를 반으로 나누면 두 반을 가로지르는 짝이 사라지므로 이렇게 편다.
+        /* 병렬 작업의 분할 단위인 팀 쌍 목록을 생성한다.
+           p번째 팀 쌍은 (pairA[p], pairB[p])이다. 팀이 K개이면 팀 쌍은 K(K-1)/2개다.
+
+           팀 쌍을 분할 단위로 사용하는 이유
+             - 스캔 1회는 모든 교환 후보를 검사한다. 이를 병렬로 실행하려면 교환 후보를 여러 작업에 분배하되,
+               각 후보가 정확히 하나의 작업에서만 검사되어야 한다.
+             - 교환 후보 하나는 팀 a의 i번 참가자와 팀 b의 j번 참가자를 교환하는 경우이며, 팀 쌍 (a, b)에만 속한다.
+             - 따라서 각 작업에 팀 쌍 일부를 할당하고 할당된 팀 쌍의 교환 후보를 모두 검사하게 하면,
+               누락되거나 중복 검사되는 후보가 없다.
+             - 팀 목록을 분할해 할당하면 이 조건을 충족하지 못한다. 작업 1에 팀 0~9, 작업 2에 팀 10~19를 할당하면
+               팀 3과 팀 15 사이의 교환 후보는 두 팀을 모두 가진 작업이 없어 검사되지 않는다.
+
+           팀 쌍을 1차원 배열로 나열하는 이유
+             - ImproveTask는 인덱스 구간 [lo, hi)를 절반씩 분할해 하위 작업에 전달한다.
+               팀 쌍이 1차원 배열에 나열되어 있으면 어느 인덱스에서 분할해도 구간이 겹치지 않고,
+               모든 구간을 합하면 전체 팀 쌍이 된다.
+             - 모든 팀의 인원이 같으므로 팀 쌍 하나의 교환 후보 수는 정원 x 정원으로 동일하다.
+               따라서 인덱스 구간을 같은 길이로 분할하면 작업량도 균등하게 분배된다.
+
+           b를 a+1부터 시작하는 이유
+             - (a, a)처럼 같은 팀으로 이루어진 쌍을 생성하지 않는다.
+             - (0, 1)과 (1, 0)처럼 같은 쌍을 중복 생성하지 않는다.
 
            팀이 넷이고 짝이 여섯일 때의 예다.
              p : 0  1  2  3  4  5
@@ -575,8 +592,8 @@ public class TeamFormationEngine {
             // 이번 스캔의 기준값이다. 교환 전 상태의 두 편차를 낸다.
             // 앞 바퀴에서 교환 1건이 적용되었으므로 배열을 다시 채우고 거기서 뽑는다.
             buildTeamStats(teams, teamSum, teamSqSum, teamSize);
-            double currentSumDev = sumDeviationOf(teamSum);
-            double currentDistDev = distributionDeviationOf(teamSum, teamSqSum, teamSize);
+            double currentSumDev = sumDeviationOf(teamSum);     //  합 편차 : 모든 팀에 대해 각각 팀원 전체 합을 더한 후 최대 볼륨 팀과 최소 볼륨 팀의 차이를 계산.
+            double currentDistDev = distributionDeviationOf(teamSum, teamSqSum, teamSize);  // 분포 편차 : 팀마다 팀원 실력의 분산을 구한 뒤, 분산이 가장 큰 팀과 가장 작은 팀의 차이를 계산. 이번 스캔에서 교환 후보는 이 값보다 작아져야 개선으로 인정된다.
 
             // 교환 전에 이미 허용폭 안인지를 담는다. 말단의 합 필터가 이 값으로 판정 방향을 가른다.
             boolean withinCap = currentSumDev <= tolerance;
@@ -748,13 +765,18 @@ public class TeamFormationEngine {
                 local.add(new ArrayList<>(team));
             }
 
-            /* 합과 제곱합은 평가 중에 고쳤다 되돌리는 값이라 말단마다 자기 것을 가진다.
-               인원은 값이 변하지 않아 복사하지 않고 원본을 함께 읽는다. */
+            /* 팀별 합과 제곱합 배열은 직접 검사를 수행하는 작업마다 복사본을 만들어 사용한다.
+               교환 후보를 검사할 때 두 팀의 값을 갱신했다가 복원하므로, 여러 워커가 원본 배열을 함께 사용하면
+               한 워커가 갱신한 값을 다른 워커가 읽게 된다.
+               팀별 인원 배열은 검사 중 값이 변경되지 않으므로 복사하지 않고 원본을 공유한다. */
             double[] localSum = teamSum.clone();
             double[] localSqSum = teamSqSum.clone();
             int[] localSize = teamSize;
 
-            double bestNewDistDev = currentDistDev;   // 이 말단의 최선 값. 스캔 시작 시점 값에서 출발한다
+            // 이 작업이 지금까지 찾은 교환 후보 중 가장 작은 분포 편차.
+            // 스캔 시작 시점의 분포 편차(currentDistDev)로 초기화하므로, 현재 배정보다 분포 편차를 줄이는 교환만 최선 후보로 기록된다.
+            // 끝까지 그런 교환이 없으면 결과의 bestTeamA가 -1로 남고, 이 작업은 "개선 교환 없음"을 반환한다.
+            double bestNewDistDev = currentDistDev;
 
             ImproveTaskResult improveTaskResult = new ImproveTaskResult();
 
@@ -767,32 +789,79 @@ public class TeamFormationEngine {
                     for (int j = 0; j < local.get(b).size(); j++) {  // 팀 b의 j번 자리
                             // 평가 한 번이다. 실력을 읽고, 맞바꾸고, 두 팀을 고치고, 두 편차를 내고, 되돌린다.
 
-                            /* 이번 후보 교환으로 자리를 옮기는 두 사람의 실력을 미리 변수에 담아 둔다. */
-                            double swapTargetSkillA = local.get(a).get(i).skill().doubleValue();   // 팀 a의 교환 대상 실력
-                            double swapTargetSkillB = local.get(b).get(j).skill().doubleValue();   // 팀 b의 교환 대상 실력
+                            /* 1. 교환 대상 두 참가자의 실력을 변수에 저장한다.
+                               swap() 이후에는 local.get(a).get(i)가 팀 b에서 이동한 참가자를 가리키므로, 교환 전에 조회해야 한다. */
+                            double swapTargetSkillA = local.get(a).get(i).skill().doubleValue();   // 팀 a에서 팀 b로 이동하는 참가자의 실력
+                            double swapTargetSkillB = local.get(b).get(j).skill().doubleValue();   // 팀 b에서 팀 a로 이동하는 참가자의 실력
 
-                            /* 교환 로직(swap() 후에 실제 검사 로직을 수행 끝나면 다시 원복 해야 된다) 전에 값을 보존 */
-                            double oldSumA = localSum[a], oldSumB = localSum[b];
-                            double oldSqA = localSqSum[a], oldSqB = localSqSum[b];
+                            /* 2. 두 팀의 교환 전 합과 제곱합을 저장한다.
+                               검사가 끝나면 이 값을 다시 대입해 배열을 교환 전 상태로 복원한다.
+                               더한 값을 다시 빼는 방식으로 복원하지 않는 이유는, double 연산의 반올림 오차로
+                               원래 값과 마지막 자릿수가 달라질 수 있기 때문이다. */
+                            double oldSumA = localSum[a], oldSumB = localSum[b];      // 팀 a, 팀 b의 교환 전 합
+                            double oldSqA = localSqSum[a], oldSqB = localSqSum[b];    // 팀 a, 팀 b의 교환 전 제곱합
 
-                            swap(local, a, i, b, j);            // 후보 교환을 실제로 적용한다
+                            /* 3. 복사본 배정(local)에서 두 참가자를 교환한다.
+                               검사가 끝나면 아래에서 swap()을 다시 호출해 원래 위치로 복원한다. */
+                            swap(local, a, i, b, j);            // 팀 a의 i번 참가자와 팀 b의 j번 참가자를 교환한다
 
-                            /* "swap() 수행 후 localSum 배열과 localSqSum 배열 값을 참조 해서 평가하기 때문에 그에 맞게 수정 한다.*/
-                            localSum[a]   = oldSumA - swapTargetSkillA + swapTargetSkillB;   // 팀 a의 합
-                            localSum[b]   = oldSumB - swapTargetSkillB + swapTargetSkillA;   // 팀 b의 합
+                            /* 4. 두 팀의 합과 제곱합을 교환 후 값으로 갱신한다.
+                               아래의 편차 계산(sumDeviationOf, distributionDeviationOf)은 팀 목록이 아니라 이 두 배열만 읽는다.
+                               swap()은 팀 목록만 변경하고 배열은 변경하지 않으므로, 교환 후 편차를 계산하려면 배열을 직접 갱신해야 한다.
+                               교환으로 값이 바뀌는 팀은 a와 b뿐이므로 두 팀의 값만 갱신한다.
 
-                            localSqSum[a] = oldSqA  - swapTargetSkillA * swapTargetSkillA + swapTargetSkillB * swapTargetSkillB;   // 팀 a의 제곱합
-                            localSqSum[b] = oldSqB  - swapTargetSkillB * swapTargetSkillB + swapTargetSkillA * swapTargetSkillA;   // 팀 b의 제곱합
+                               교환 전 값에서 제외되는 참가자의 값을 빼고 추가되는 참가자의 값을 더하는 이유
+                                 - 교환하면 팀 a에서는 참가자 한 명(실력 x)이 제외되고 한 명(실력 y)이 추가되며, 나머지 팀원은 그대로다.
+                                 - 따라서 팀원 전체를 다시 더하지 않고 x와 y만으로 교환 후 합과 제곱합을 구할 수 있다.
+                                   팀 인원과 상관없이 덧셈과 뺄셈 몇 번으로 계산이 끝난다.
+
+                               합과 함께 제곱합을 유지하는 이유
+                                 - 분포 편차 계산에는 팀별 분산이 필요하고, 합만으로는 분산을 구할 수 없다.
+                                   예: [10, 30]과 [20, 20]은 합이 40으로 같지만 분산은 100과 0이다.
+                                 - 합과 제곱합이 있으면 분산 = 제곱합 / 인원 - (합 / 인원)^2 으로 팀원을 다시 읽지 않고 계산할 수 있다.
+                                 - 분산 자체를 저장해 갱신하지 않는 이유: 교환하면 팀 평균이 바뀌고, 평균이 바뀌면 나머지 팀원의
+                                   (실력 - 평균)^2도 모두 바뀌므로 팀원 전체를 다시 계산해야 한다.
+                                   제곱합은 평균과 상관없는 값이라 x와 y만으로 갱신할 수 있다.
+
+                               계산 예: 팀 a [10, 20, 30]에서 10이 제외되고 35가 추가되면
+                                 합   = 60 - 10 + 35 = 85            (직접 계산: 35 + 20 + 30 = 85)
+                                 제곱합 = 1400 - 100 + 1225 = 2525    (직접 계산: 1225 + 400 + 900 = 2525) */
+
+                            // 팀 a의 교환 후 합 = (교환 전 합 - x) + y
+                            //   x = swapTargetSkillA : 팀 a에서 제외되어 팀 b로 이동하는 참가자의 실력
+                            //   y = swapTargetSkillB : 팀 b에서 제외되어 팀 a로 이동하는 참가자의 실력
+                            localSum[a]   = (oldSumA - swapTargetSkillA) + swapTargetSkillB;
+
+                            // 팀 b의 교환 후 합 = (교환 전 합 - y) + x
+                            localSum[b]   = (oldSumB - swapTargetSkillB) + swapTargetSkillA;
+
+                            // 팀 a의 교환 후 제곱합 = (교환 전 제곱합 - x^2) + y^2
+                            //   교환 전 제곱합에 포함된 x^2을 빼고, 새로 추가되는 참가자의 y^2을 더한다
+                            localSqSum[a] = (oldSqA - (swapTargetSkillA * swapTargetSkillA)) + (swapTargetSkillB * swapTargetSkillB);
+
+                            // 팀 b의 교환 후 제곱합 = (교환 전 제곱합 - y^2) + x^2
+                            localSqSum[b] = (oldSqB - (swapTargetSkillB * swapTargetSkillB)) + (swapTargetSkillA * swapTargetSkillA);
 
                             double newSumDev = sumDeviationOf(localSum);      // 교환 후 합 편차. 팀 안의 인원은 훑지 않고 배열만 훑는다
 
-                            /* 합 필터. 합 균형이라는 제약을 깨는 교환을 걸러낸다.
-                               withinCap이면 교환 후에도 허용폭 안이어야 통과하고,
-                               아니면 교환 전보다 나빠지지만 않으면 통과한다. */
+                            /* 합 편차 조건을 검사해, 조건을 충족하는 교환 후보만 분포 편차 계산으로 넘긴다.
+                               합 편차(팀별 실력 합의 최댓값 - 최솟값)를 허용 범위(tolerance) 안으로 유지하는 것이 반드시 지켜야 할 조건이고,
+                               분포 편차를 줄이는 것은 그 조건을 지키는 교환 중에서만 추구한다.
+                               조건을 충족하지 않는 후보는 분포 편차를 계산하지 않으므로 그만큼 검사 시간도 줄어든다.
+
+                               withinCap: 이번 스캔을 시작할 때의 합 편차(currentSumDev)가 이미 허용 범위 안이었는지 나타낸다.
+                                 - true인 경우: 교환 후 합 편차도 허용 범위 안이어야 통과한다.
+                                   현재 지켜지고 있는 조건을 교환 때문에 어기지 않게 하기 위해서다.
+                                 - false인 경우: 교환 후 합 편차가 스캔 시작 시점의 합 편차보다 커지지만 않으면 통과한다.
+                                   참가자 실력에 극단값이 있으면 어떤 배정으로도 허용 범위를 만족하지 못할 수 있다.
+                                   이때도 허용 범위를 기준으로 삼으면 모든 후보가 탈락해 분포 편차를 전혀 개선할 수 없으므로,
+                                   합 편차를 더 나쁘게 만들지 않는 교환까지는 허용한다. */
                             boolean pass = withinCap ? newSumDev <= tolerance : newSumDev <= currentSumDev;
 
                             if (pass) {
 
+                                // 합 편차 조건을 통과한 후보만 교환 후 분포 편차(팀별 분산의 최댓값 - 최솟값)를 계산한다.
+                                // 분산은 팀원 목록이 아니라 팀별 합·제곱합·인원 배열로 계산하므로 팀 수만큼만 반복한다.
                                 double newDistDev = distributionDeviationOf(localSum, localSqSum, localSize);  // 교환 후 분포 편차. 여기서도 배열만 훑는다
 
                                 // 분포 편차를 1e-12를 넘게 줄인 교환이다. 값과 위치와 키를 모두 갱신한다.
@@ -1000,6 +1069,13 @@ public class TeamFormationEngine {
 
             for (int m = 0; m < team.size(); m++) {
                 double v = team.get(m).skill().doubleValue();
+                // 팀 분산 계산에 필요한 두 값을 한 번의 순회로 누적한다.
+                //   sum   : 팀원 실력의 합
+                //   sqSum : 팀원 실력 제곱의 합
+                // 분산을 정의대로 계산하면 팀 평균을 먼저 구한 뒤 (실력 - 평균)^2을 누적해야 하므로 팀을 두 번 순회한다.
+                // 여기서는 합과 제곱합만 누적하고, 분산은 distributionDeviationOf()에서
+                // 제곱합 / 인원 - (합 / 인원)^2 으로 계산한다. 두 식은 수학적으로 같은 값이다.
+                // 교환 후보를 검사할 때는 교환한 두 팀의 합과 제곱합만 갱신하면 분산을 다시 계산할 수 있다.
                 sum += v;
                 sqSum += v * v;
             }
@@ -1022,27 +1098,68 @@ public class TeamFormationEngine {
         return max - min;
     }
 
-    /** 분포 편차 = 팀별 분산 중 (최댓값 − 최솟값).
-     *  분산은 제곱합 ÷ 인원 − (합 ÷ 인원)²으로 낸다. 인원이 0이면 0으로 두는데,
-     *  스트림 구현의 average().orElse(0)이 두 자리 모두 0을 내는 것과 같은 자리다. */
+    /**
+     * 분포 편차를 계산한다. 분포 편차는 팀별 분산의 최댓값에서 최솟값을 뺀 값이다.
+     * 값이 작을수록 팀마다 실력이 퍼진 정도가 비슷하다.
+     *
+     * <p>팀원 목록을 읽지 않고 buildTeamStats()가 채운 팀별 합·제곱합·인원 배열만 사용한다.
+     * 팀원 목록으로 계산하는 distributionDeviation()과 수학적으로 같은 값을 반환한다.
+     * 계산 순서가 달라 double 결과의 마지막 자릿수는 다를 수 있다.
+     *
+     * @param teamSum   팀별 실력 합
+     * @param teamSqSum 팀별 실력 제곱의 합
+     * @param teamSize  팀별 인원
+     * @return 분포 편차
+     */
     double distributionDeviationOf(double[] teamSum, double[] teamSqSum, int[] teamSize) {
 
+        // 첫 번째 팀의 분산으로 최댓값과 최솟값이 모두 갱신되도록 양쪽 끝 값으로 초기화한다.
         double max = Double.NEGATIVE_INFINITY, min = Double.POSITIVE_INFINITY;
 
+        // 팀마다 분산을 계산하고, 지금까지의 최댓값과 최솟값을 갱신한다.
         for (int t = 0; t < teamSum.length; t++) {
 
-            int size = teamSize[t];
+            int size = teamSize[t];     // 팀 t의 인원
+
+            // 인원이 0이면 분산을 0으로 둔다. distributionDeviation()의 average().orElse(0)과 같은 처리다.
+            // 편성 입력은 인원 = 팀 수 x 정원이고 교환은 인원을 바꾸지 않으므로, 실제로는 0이 되지 않는다.
             double variance = 0.0;
 
             if (size > 0) {
-                double mean = teamSum[t] / size;
+                double mean = teamSum[t] / size;    // 팀 t의 실력 평균
+
+                // 팀 t의 분산을 팀원 목록 없이 합(teamSum)과 제곱합(teamSqSum)만으로 계산한다.
+                //
+                // [이 식을 쓰는 이유]
+                //   분산의 원래 정의는 다음 순서로 구한 값이다.
+                //     1) 팀원마다 (실력 - 팀 평균)^2을 구한다.
+                //     2) 그 값을 해당 팀의 모든 팀원에 대해 더한다.
+                //     3) 더한 값을 팀 인원으로 나눈다.(평균)
+                //  그리고 분산 편차는 이 팀 별로 계산해낸 팀 별 분산 값을 가지고 가장 큰 값과 작은 값을 뺀 값이다.
+
+                //   정의대로 계산하려면 팀원 목록을 처음부터 끝까지 읽어야 한다.
+                //   이 메서드는 교환 후보를 검사할 때마다 호출되므로, 매번 팀원 목록을 읽으면 검사 1회의 비용이 팀 인원에 비례한다.
+                //   합과 제곱합은 교환 때 제외되는 참가자와 추가되는 참가자 두 명의 값만으로 갱신할 수 있으므로,
+                //   이 두 값으로 분산을 구하면 팀원 목록을 읽지 않아도 된다.
+                //
+                // [식이 나오는 과정]  n: 팀 인원, m: 팀 평균(= 합 / n), x: 팀원 한 명의 실력, Σ: 팀원 전체에 대한 합
+                //   1. 정의대로 쓰면 분산 = Σ(x - m)^2 / n
+                //   2. (x - m)^2 = x^2 - 2mx + m^2 이므로, 팀원 전체에 대해 더하면
+                //      Σ(x - m)^2 = Σx^2 - 2m·Σx + n·m^2
+                //   3. Σx는 팀 합이고 팀 합 = n·m 이므로 가운데 항은 -2m·(n·m) = -2n·m^2 이 된다.
+                //      따라서 Σ(x - m)^2 = Σx^2 - 2n·m^2 + n·m^2 = Σx^2 - n·m^2
+                //   4. 양변을 n으로 나누면 분산 = Σx^2 / n - m^2, 즉 (제곱합 / 인원) - (평균^2)
+                //
+                // [예] 팀원 실력 [10, 30]: 합 40, 제곱합 1000, 평균 20
+                //   정의대로 계산: ((10 - 20)^2 + (30 - 20)^2) / 2 = (100 + 100) / 2 = 100
+                //   이 식으로 계산: 1000 / 2 - 20^2 = 500 - 400 = 100
                 variance = teamSqSum[t] / size - mean * mean;
             }
 
-            max = Math.max(max, variance);
-            min = Math.min(min, variance);
+            max = Math.max(max, variance);   // 지금까지 계산한 팀 중 가장 큰 분산
+            min = Math.min(min, variance);   // 지금까지 계산한 팀 중 가장 작은 분산
         }
-        return max - min;
+        return max - min;   // 분포 편차
     }
 
 
